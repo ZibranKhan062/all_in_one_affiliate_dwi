@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#278be3</color>
+    <color name="colorPrimaryDark">#278be3</color>
+<!--    <color name="colorPrimaryDark">#0f5998</color> this is original-->
+    <color name="colorAccent">#4075a2</color>
+    <color name="colorNavIcon">#dae9f6</color>
+    <color name="colorNavText">#FFFFFF</color>
+
+    <color name="black_overlay">#66000000</color>
+
+    <color name="selected">#F46797</color>
+    <color name="btn_clr">#1970B5</color>
+
+    <color name="operator_btn_clr">#34D5C5</color>
+    <color name="green">#5FCAC0</color>
+
+    <color name="light_gray">#ddd</color>
+    <color name="duskYellow">#FFE500</color>
+
+    <style name="RatingBar" parent="Theme.AppCompat">
+        <item name="colorControlNormal">#FF9800</item>
+        <item name="colorControlActivated">#FF9800</item>
+    </style>
+
+
+    <color name="gradient_start_color">#4c84ff</color>
+    <color name="gradient_end_color">#18a3fe</color>
+    <color name="tab_indicator_gray">#c0c0c0</color>
+    <color name="intro_title_color">#000000</color>
+    <color name="intro_description_color">#656565</color>
+
+    <color name="toolbar">#0D1543</color>
+    <color name="transparent">#00000000</color>
+    <color name="textView_totalReward_point_fragment">#ffd973</color>
+    <color name="tab_indicator_reward_point_fragment">#ffd973</color>
+    <color name="textView_point_menu">#ffd973</color>
+    <color name="yellow">#69D54B</color>
+    <color name="button_text_reward_point_fragment">#000000</color>
+
+    <color name="textView_noData">#6F6F6F</color>
+</resources>
