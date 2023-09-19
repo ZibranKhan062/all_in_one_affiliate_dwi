@@ -365,8 +365,6 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
 
 
     public void loadResources() {
-
-
         databaseReference = FirebaseDatabase.getInstance().getReference("HomeItems");
         databaseReference.keepSynced(true);
 
@@ -694,7 +692,8 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
 
     private void readCurrency() {
 
-        LottieDialog loadingDialog = config.showLoadingDialog(mContext);
+        Config.showLoadingDialog(mContext);
+//        LottieDialog loadingDialog = config.showLoadingDialog(mContext);
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("currencies");
         // Initialize SharedPreferences
         SharedPreferences sharedPreferences = mContext.getSharedPreferences("currency", MODE_PRIVATE);
@@ -702,9 +701,9 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Config.hideLoadingDialog();
                 if (snapshot.exists()) {
                     // Hide loading dialog
-                    config.hideLoadingDialog();
                     String selectedCurrency = snapshot.getValue(String.class);
                     Log.e("currency", "" + selectedCurrency);
                     // Save the selected currency in SharedPreferences
@@ -721,7 +720,7 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
                 // Handle database error
                 Toast.makeText(mContext, "Currency Error : " + error.getMessage(), Toast.LENGTH_SHORT).show();
                 // Hide loading dialog
-                config.hideLoadingDialog();
+                Config.hideLoadingDialog();
             }
         });
     }

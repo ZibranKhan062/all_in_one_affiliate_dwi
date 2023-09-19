@@ -66,25 +66,32 @@ public class SplashActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
                     String isAdmobEnabled = dataSnapshot.child("isAdmobEnabled").getValue(String.class);
-                    Log.e("isAdmobEnabled", isAdmobEnabled);
-                    SharedPreferences.Editor editor = isAdEnabledPreferences.edit();
-                    editor.putString("isAdMobEnabled", isAdmobEnabled);
-                    editor.apply();
 
+                    if (isAdmobEnabled != null) {
+                        Log.e("isAdmobEnabled", isAdmobEnabled);
 
+                        // Store the value in SharedPreferences
+                        SharedPreferences.Editor editor = isAdEnabledPreferences.edit();
+                        editor.putString("isAdMobEnabled", isAdmobEnabled);
+                        editor.apply();
+                    } else {
+                        // Handle case where data is null
+                        Toast.makeText(SplashActivity.this, "Admob status data is null!", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
-                    Toast.makeText(SplashActivity.this, "No data available !", Toast.LENGTH_SHORT).show();
-
+                    // Handle case where data doesn't exist
+                    Toast.makeText(SplashActivity.this, "No data available!", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(SplashActivity.this, "Error" + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-
+                // Handle database error
+                Toast.makeText(SplashActivity.this, "Error: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
+
 
     private void getAdMobAds() {
         adsReference = FirebaseDatabase.getInstance().getReference("Ads").child("Admob");
@@ -97,28 +104,30 @@ public class SplashActivity extends AppCompatActivity {
                     String bannerAdsID = dataSnapshot.child("bannerAdsID").getValue(String.class);
                     String interstitialID = dataSnapshot.child("interstitialID").getValue(String.class);
 
-                    SharedPreferences.Editor editor = admobPreferences.edit();
+                    if (appID != null && bannerAdsID != null && interstitialID != null) {
+                        SharedPreferences.Editor editor = admobPreferences.edit();
 
-                    editor.putString("appID", appID);
-                    editor.putString("bannerAdsID", bannerAdsID);
-                    editor.putString("interstitialID", interstitialID);
-                    editor.apply();
-
-
+                        editor.putString("appID", appID);
+                        editor.putString("bannerAdsID", bannerAdsID);
+                        editor.putString("interstitialID", interstitialID);
+                        editor.apply();
+                    } else {
+                        // Handle case where some data is null
+                        Toast.makeText(SplashActivity.this, "Admob data is incomplete!", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
-                    Toast.makeText(SplashActivity.this, "No data available !", Toast.LENGTH_SHORT).show();
-
+                    // Handle case where data doesn't exist
+                    Toast.makeText(SplashActivity.this, "No Admob data available!", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(SplashActivity.this, "Error" + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-
+                // Handle database error
+                Toast.makeText(SplashActivity.this, "Error: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
-
 
     private void getFacebookAds() {
         adsReference = FirebaseDatabase.getInstance().getReference("Ads").child("Facebook");
@@ -130,24 +139,28 @@ public class SplashActivity extends AppCompatActivity {
                     String fbBannerID = dataSnapshot.child("fbBannerID").getValue(String.class);
                     String fbInterID = dataSnapshot.child("fbInterID").getValue(String.class);
 
-                    SharedPreferences.Editor editor = facebookPreferences.edit();
+                    if (fbBannerID != null && fbInterID != null) {
+                        SharedPreferences.Editor editor = facebookPreferences.edit();
 
-                    editor.putString("fbBannerID", fbBannerID);
-                    editor.putString("fbInterID", fbInterID);
-                    editor.apply();
-
-
+                        editor.putString("fbBannerID", fbBannerID);
+                        editor.putString("fbInterID", fbInterID);
+                        editor.apply();
+                    } else {
+                        // Handle case where some data is null
+                        Toast.makeText(SplashActivity.this, "Facebook data is incomplete!", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
-                    Toast.makeText(SplashActivity.this, "No data available !", Toast.LENGTH_SHORT).show();
-
+                    // Handle case where data doesn't exist
+                    Toast.makeText(SplashActivity.this, "No Facebook data available!", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(SplashActivity.this, "Error" + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-
+                // Handle database error
+                Toast.makeText(SplashActivity.this, "Error: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
+
 }
