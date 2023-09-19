@@ -32,6 +32,8 @@ import com.facebook.ads.InterstitialAd;
 import com.facebook.ads.InterstitialAdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -42,8 +44,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DetailActivity extends AppCompatActivity {
-
-
     RecyclerView recyclerviewDetail;
 
     DatabaseReference databaseReference;
@@ -60,7 +60,7 @@ public class DetailActivity extends AppCompatActivity {
     AdView adView;
     com.google.android.gms.ads.AdView AdmobView;
     LinearLayout adContainer;
-    public static com.google.android.gms.ads.InterstitialAd mInterstitialAd;
+    public static com.google.android.gms.ads.interstitial.InterstitialAd mInterstitialAd;
 
     public static final String AdMobPREFERENCES = "AdMobPrefs";
     public static final String FacebookPREFERENCES = "FacebookPrefs";
@@ -74,19 +74,19 @@ public class DetailActivity extends AppCompatActivity {
     LinearLayout adViewNew;
     String searchID;
 
-    public static void ShowAd() {
-
-        if (Config.showFacebookAds) {
-
-            if (interstitialAd.isAdLoaded()) {
-                interstitialAd.show();
-            }
-        } else {
-            if (mInterstitialAd.isLoaded()) {
-                mInterstitialAd.show();
-            }
-        }
-    }
+//    public static void ShowAd() {
+//
+//        if (Config.showFacebookAds) {
+//
+//            if (interstitialAd.isAdLoaded()) {
+//                interstitialAd.show();
+//            }
+//        } else {
+//            if (mInterstitialAd.isLoaded()) {
+//                mInterstitialAd.show();
+//            }
+//        }
+//    }
 
 
     @Override
@@ -105,39 +105,42 @@ public class DetailActivity extends AppCompatActivity {
 
 //        tempIntent.getStringExtra("HomeSearch");
 
-        MobileAds.initialize(this,
-                admobAppID);
-
-        mInterstitialAd = new com.google.android.gms.ads.InterstitialAd(DetailActivity.this);
-        mInterstitialAd.setAdUnitId(admobInterstitialID);
-        Log.e("Int ID", admobInterstitialID);
-        mInterstitialAd.loadAd(new AdRequest.Builder().build());
-        mInterstitialAd.setAdListener(new com.google.android.gms.ads.AdListener() {
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
             @Override
-            public void onAdLoaded() {
-                // Code to be executed when an ad finishes loading.
-            }
-
-            @Override
-            public void onAdFailedToLoad(int errorCode) {
-                // Code to be executed when an ad request fails.
-            }
-
-            @Override
-            public void onAdOpened() {
-                // Code to be executed when the ad is displayed.
-            }
-
-            @Override
-            public void onAdLeftApplication() {
-                // Code to be executed when the user has left the app.
-            }
-
-            @Override
-            public void onAdClosed() {
-                mInterstitialAd.loadAd(new AdRequest.Builder().build());
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+                // Code to be executed when the initialization is complete.
             }
         });
+//        mInterstitialAd = new com.google.android.gms.ads.InterstitialAd(DetailActivity.this);
+//        mInterstitialAd.setAdUnitId(admobInterstitialID);
+//        Log.e("Int ID", admobInterstitialID);
+//        mInterstitialAd.loadAd(new AdRequest.Builder().build());
+//        mInterstitialAd.setAdListener(new com.google.android.gms.ads.AdListener() {
+//            @Override
+//            public void onAdLoaded() {
+//                // Code to be executed when an ad finishes loading.
+//            }
+//
+//            @Override
+//            public void onAdFailedToLoad(int errorCode) {
+//                // Code to be executed when an ad request fails.
+//            }
+//
+//            @Override
+//            public void onAdOpened() {
+//                // Code to be executed when the ad is displayed.
+//            }
+//
+//            @Override
+//            public void onAdLeftApplication() {
+//                // Code to be executed when the user has left the app.
+//            }
+//
+//            @Override
+//            public void onAdClosed() {
+//                mInterstitialAd.loadAd(new AdRequest.Builder().build());
+//            }
+//        });
 
 
         AudienceNetworkAds.initialize(this);

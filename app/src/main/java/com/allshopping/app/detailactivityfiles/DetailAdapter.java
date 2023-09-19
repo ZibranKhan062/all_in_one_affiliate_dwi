@@ -92,7 +92,7 @@ public class DetailAdapter extends RecyclerView.Adapter<DetailAdapter.ViewHolder
             @Override
             public void onClick(View view) {
 
-                DetailActivity.ShowAd();
+//                DetailActivity.ShowAd();
                 Intent intent = new Intent(mCtx, WebViewActivity.class);
                 intent.putExtra("Web", String.valueOf(detailModel.getClick()));
                 intent.putExtra("website_name", holder.textLabel.getText().toString().trim());

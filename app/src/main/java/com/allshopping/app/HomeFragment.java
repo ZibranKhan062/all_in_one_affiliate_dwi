@@ -42,13 +42,13 @@ import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
-import com.amrdeveloper.lottiedialog.LottieDialog;
 import com.allshopping.NotificationActivity;
 import com.allshopping.app.Favorite.BookMarksActivity;
 import com.allshopping.app.homeelements.HomeAdapter;
 import com.allshopping.app.homeelements.HomeModel;
 import com.allshopping.app.models.DealsModel;
 import com.allshopping.app.models.TempModel;
+import com.amrdeveloper.lottiedialog.LottieDialog;
 import com.facebook.ads.Ad;
 import com.facebook.ads.AdError;
 import com.facebook.ads.AdListener;
@@ -57,6 +57,9 @@ import com.facebook.ads.AdView;
 import com.facebook.ads.AudienceNetworkAds;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -460,7 +463,14 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
     }
 
     public void showAdmobAds() {
-        com.google.android.gms.ads.AdView mAdView = new com.google.android.gms.ads.AdView(getActivity());
+        MobileAds.initialize(mContext, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+                Log.e("initializationStatus", "" + initializationStatus);
+            }
+        });
+
+        com.google.android.gms.ads.AdView mAdView = new com.google.android.gms.ads.AdView(mContext);
         mAdView.setAdSize(com.google.android.gms.ads.AdSize.BANNER);
         mAdView.setAdUnitId(adMobBannerAdsID);
         Log.e("Ad Unit is", adMobBannerAdsID);
