@@ -4,10 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -22,6 +22,7 @@ import com.google.firebase.database.ValueEventListener;
 
 public class SplashActivity extends AppCompatActivity {
 
+    ProgressBar progressBar;
     DatabaseReference adsReference, isAdmobEnabledReference;
     public static final String AdMobPREFERENCES = "AdMobPrefs";
     public static final String FacebookPREFERENCES = "FacebookPrefs";
@@ -35,38 +36,23 @@ public class SplashActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_splash);
-
-
-        /* New Handler to start the Menu-Activity
-         * and close this Splash-Screen after some seconds.*/
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                /* Create an Intent that will start the Menu-Activity. */
-                Intent mainIntent = new Intent(SplashActivity.this, MainActivity.class);
-                SplashActivity.this.startActivity(mainIntent);
-                SplashActivity.this.finish();
-            }
-        }, 3000);
-
+        progressBar = findViewById(R.id.progressBar);
         admobPreferences = getSharedPreferences(AdMobPREFERENCES, Context.MODE_PRIVATE);
         facebookPreferences = getSharedPreferences(FacebookPREFERENCES, Context.MODE_PRIVATE);
         isAdEnabledPreferences = getSharedPreferences(isAdEnabledPREFERENCES, Context.MODE_PRIVATE);
         getAdsStatus();
-        getAdMobAds();
-        getFacebookAds();
+
 
     }
 
     private void getAdsStatus() {
+//                isAdmobEnabledReference.keepSynced(true);
         isAdmobEnabledReference = FirebaseDatabase.getInstance().getReference("Ads");
-        isAdmobEnabledReference.keepSynced(true);
         isAdmobEnabledReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
+                if (dataSnapshot != null && dataSnapshot.exists()) {
                     String isAdmobEnabled = dataSnapshot.child("isAdmobEnabled").getValue(String.class);
-
                     if (isAdmobEnabled != null) {
                         Log.e("isAdmobEnabled", isAdmobEnabled);
 
@@ -74,6 +60,7 @@ public class SplashActivity extends AppCompatActivity {
                         SharedPreferences.Editor editor = isAdEnabledPreferences.edit();
                         editor.putString("isAdMobEnabled", isAdmobEnabled);
                         editor.apply();
+                        getAdMobAds();
                     } else {
                         // Handle case where data is null
                         Toast.makeText(SplashActivity.this, "Admob status data is null!", Toast.LENGTH_SHORT).show();
@@ -111,6 +98,7 @@ public class SplashActivity extends AppCompatActivity {
                         editor.putString("bannerAdsID", bannerAdsID);
                         editor.putString("interstitialID", interstitialID);
                         editor.apply();
+                        getFacebookAds();
                     } else {
                         // Handle case where some data is null
                         Toast.makeText(SplashActivity.this, "Admob data is incomplete!", Toast.LENGTH_SHORT).show();
@@ -145,6 +133,11 @@ public class SplashActivity extends AppCompatActivity {
                         editor.putString("fbBannerID", fbBannerID);
                         editor.putString("fbInterID", fbInterID);
                         editor.apply();
+
+//                        progressBar.setVisibility(View.GONE);
+                        Intent mainIntent = new Intent(SplashActivity.this, MainActivity.class);
+                        SplashActivity.this.startActivity(mainIntent);
+                        SplashActivity.this.finish();
                     } else {
                         // Handle case where some data is null
                         Toast.makeText(SplashActivity.this, "Facebook data is incomplete!", Toast.LENGTH_SHORT).show();
