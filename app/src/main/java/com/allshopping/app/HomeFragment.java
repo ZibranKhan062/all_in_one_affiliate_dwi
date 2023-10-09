@@ -330,6 +330,18 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
         loadDealsOffers();
 
         readCurrency();
+
+
+        com.google.android.gms.ads.AdView adView = new com.google.android.gms.ads.AdView(mContext);
+        adView.setAdSize(com.google.android.gms.ads.AdSize.BANNER);
+        adView.setAdUnitId(adMobBannerAdsID);
+        LinearLayout layout = (LinearLayout) view.findViewById(R.id.banner_container);
+        layout.addView(adView);
+
+        AdRequest adRequest = new AdRequest.Builder().build();
+        adView.loadAd(adRequest);
+
+
         return view;
     }
 
