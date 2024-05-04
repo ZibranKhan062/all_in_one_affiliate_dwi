@@ -40,6 +40,7 @@ public class RegisterActivity extends AppCompatActivity {
     TextView goToSignIn;
     ProgressDialog progressDialog;
     FirebaseAuth firebaseAuth;
+    TextInputEditText userPhone;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +59,8 @@ public class RegisterActivity extends AppCompatActivity {
         progressDialog = new ProgressDialog(RegisterActivity.this);
         uName = findViewById(R.id.u_name);
         userEmail = findViewById(R.id.user_email);
+        userPhone = findViewById(R.id.user_phone);
+
         userPass = findViewById(R.id.user_pass);
         user_refer = findViewById(R.id.user_refer);
         loginBtn = findViewById(R.id.login_btn);
@@ -88,6 +91,11 @@ public class RegisterActivity extends AppCompatActivity {
             Toast.makeText(this, "Please enter your password", Toast.LENGTH_LONG).show();
             return;
         }
+        if (TextUtils.isEmpty(userPhone.getText().toString().trim())) {
+            Toast.makeText(this, "Please enter your mobile number", Toast.LENGTH_LONG).show();
+            return;
+        }
+
 
         progressDialog.setMessage("Registering Please Wait...");
         progressDialog.show();
@@ -98,13 +106,15 @@ public class RegisterActivity extends AppCompatActivity {
 
                 // Create a new RegisterModel object to store user data
                 RegisterModel registerModel = new RegisterModel(uName.getText().toString().trim(),
-                        userEmail.getText().toString().trim(), user_refer.getText().toString().trim());
+                        userEmail.getText().toString().trim(), userPhone.getText().toString().trim(),
+                        user_refer.getText().toString().trim());
+
 
                 // Get a reference to the "Users" node in the database
                 DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("Users");
 
                 // Check if the referral code is present in any other user's data and update the "referralCount" if needed
-                updateReferralCountIfPresent(usersRef, userUid, user_refer.getText().toString().trim());
+//                updateReferralCountIfPresent(usersRef, userUid, user_refer.getText().toString().trim());
 
 
                 // Save the user data to the "Users" node with the user UID as the key

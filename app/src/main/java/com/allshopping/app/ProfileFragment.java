@@ -108,9 +108,9 @@ public class ProfileFragment extends Fragment {
         readAdmobAds();
         readFacebookAds();
         if (isAdMobEnabled.equalsIgnoreCase("true")) {
-            showAdmobAds();
+//            showAdmobAds();
         } else {
-            showFbAds();
+//            showFbAds();
         }
 
 
@@ -224,7 +224,7 @@ public class ProfileFragment extends Fragment {
         adContainer.addView(adView);
 
         // Request an ad
-        adView.loadAd();
+//        adView.loadAd();
         AdListener adListener = new AdListener() {
             @Override
             public void onError(Ad ad, AdError adError) {
@@ -261,7 +261,7 @@ public class ProfileFragment extends Fragment {
         AdRequest adRequest = new AdRequest.Builder()
                 .build();
         if (mAdView.getAdSize() != null || mAdView.getAdUnitId() != null)
-            mAdView.loadAd(adRequest);
+//            mAdView.loadAd(adRequest);
         // else Log state of adsize/adunit
         adViewNew.addView(mAdView);
 //        ((LinearLayout)findViewById(R.id.adView)).addView(mAdView);

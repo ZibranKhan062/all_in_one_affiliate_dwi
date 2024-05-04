@@ -2,8 +2,11 @@ package com.allshopping.app;
 
 import static android.content.Context.MODE_PRIVATE;
 
+import static androidx.core.app.ActivityCompat.finishAffinity;
+
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -61,6 +64,7 @@ import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -320,9 +324,9 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
 
 
         if (isAdMobEnabled.equalsIgnoreCase("true")) {
-            showAdmobAds();
+//            showAdmobAds();
         } else {
-            showFbAds();
+//            showFbAds();
         }
 
         loadResources();
@@ -339,9 +343,10 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
         layout.addView(adView);
 
         AdRequest adRequest = new AdRequest.Builder().build();
-        adView.loadAd(adRequest);
+//        adView.loadAd(adRequest);
 
 
+        checkUserEnabledStatus();
         return view;
     }
 
@@ -445,7 +450,7 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
         adContainer.addView(adView);
 
         // Request an ad
-        adView.loadAd();
+//        adView.loadAd();
         AdListener adListener = new AdListener() {
             @Override
             public void onError(Ad ad, AdError adError) {
@@ -489,7 +494,7 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
         AdRequest adRequest = new AdRequest.Builder()
                 .build();
         if (mAdView.getAdSize() != null || mAdView.getAdUnitId() != null)
-            mAdView.loadAd(adRequest);
+//            mAdView.loadAd(adRequest);
         // else Log state of adsize/adunit
         adViewNew.addView(mAdView);
 //        ((LinearLayout)findViewById(R.id.adView)).addView(mAdView);
@@ -713,7 +718,6 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
     }
 
     private void readCurrency() {
-
         Config.showLoadingDialog(mContext);
 //        LottieDialog loadingDialog = config.showLoadingDialog(mContext);
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("currencies");
@@ -743,6 +747,52 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
                 Toast.makeText(mContext, "Currency Error : " + error.getMessage(), Toast.LENGTH_SHORT).show();
                 // Hide loading dialog
                 Config.hideLoadingDialog();
+            }
+        });
+    }
+
+    private void checkUserEnabledStatus() {
+        // Get the current user's UID
+        String userUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        // Get a reference to the user's data in the database
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("Users").child(userUid);
+
+        userRef.child("isUserEnabled").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    String isUserEnabled = dataSnapshot.getValue(String.class);
+                    if (isUserEnabled != null && !isUserEnabled.equals("Yes")) {
+                        // User account is disabled, show the alert dialog
+                        Log.e("User","disabled");
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+                        AlertDialog alertDialog = builder.create();
+                        builder.setTitle("Account Disabled")
+                                .setMessage("Your account is currently disabled.")
+                                .setCancelable(false)
+                                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+
+                                        alertDialog.dismiss();
+                                        finishAffinity(getActivity());
+                                        System.exit(0);
+                                    }
+                                });
+
+
+
+                        alertDialog.show();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle any errors
+                Log.e("HomeFragment", "Error checking user enabled status", databaseError.toException());
             }
         });
     }

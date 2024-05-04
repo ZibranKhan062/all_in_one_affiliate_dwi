@@ -35,7 +35,7 @@
 
     <!--    Admob Ads-->
     <!--   just get the App id from the Admob dashboard and replace below-->
-    <string name="admob_app_id">ca-app-pub-9432631899111750~6923485702</string>
+    <string name="admob_app_id">ca-app-pub-3940256099942544~3347511713</string>
 
     <!--    social media links-->
     <string name="email">parbez964@gmail.com</string>
@@ -61,8 +61,6 @@
     <string name="euro">\u20ac</string>
 
     <string name="referral_msg">Hey there! I just found an amazing app that offers great deals and discounts. Don\'t miss out on this awesome opportunity😊🎉 ,Sign up now using my referral code : </string>
-
-
 
 
 </resources>
