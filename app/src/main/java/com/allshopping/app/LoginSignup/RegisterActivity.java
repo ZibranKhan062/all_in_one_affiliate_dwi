@@ -163,9 +163,9 @@ public class RegisterActivity extends AppCompatActivity {
                                     updateReferralCount(referralCode, userUid);
                                 }
                                 // Proceed with other actions
-                                uName.setText("");
-                                userEmail.setText("");
-                                userPass.setText("");
+//                                uName.setText("");
+//                                userEmail.setText("");
+//                                userPass.setText("");
                                 sendVerificationEmail();
                             } else {
                                 Toast.makeText(RegisterActivity.this, Objects.requireNonNull(task1.getException()).getMessage(), Toast.LENGTH_SHORT).show();
@@ -177,6 +177,7 @@ public class RegisterActivity extends AppCompatActivity {
                     }
                 });
     }
+
 
     private void updateReferralCount(String referralCode, String referredUserUid) {
         DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("Users");
@@ -190,8 +191,13 @@ public class RegisterActivity extends AppCompatActivity {
                     for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
                         String referringUserUid = userSnapshot.getKey();
                         DatabaseReference referralsRef = usersRef.child(referringUserUid).child("Referrals");
-                        referralsRef.child(referredUserUid).setValue(true);
-                        incrementReferralCount(referringUserUid);
+
+                        // Store the referred user's details under the "Referrals" node
+                        DatabaseReference referredUserRef = referralsRef.child(referredUserUid);
+                        referredUserRef.child("name").setValue(uName.getText().toString().trim());
+                        referredUserRef.child("email").setValue(userEmail.getText().toString().trim());
+                        referredUserRef.child("rewardPoints").setValue(10); // Example: Add 10 reward points
+
                         break;
                     }
                 }
@@ -204,6 +210,7 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
     }
+
 
     private void rewardReferringUser(String referringUserUid) {
         // Implement your reward logic here

@@ -99,7 +99,7 @@ public class ReferActivity extends AppCompatActivity {
                 // Check if the referral code is not empty
                 if (!referralCode.isEmpty()) {
                     // Create a share message
-                    String shareMessage = getResources().getString(R.string.referral_msg) + "" + referralCode + " Get the App here : " + "https://play.google.com/store/apps/details?id=" + getPackageName();
+                    String shareMessage = getResources().getString(R.string.referral_msg) + "" + referralCode + " Get the App : " + "https://play.google.com/store/apps/details?id=" + getPackageName();
 
                     // Create an Intent to share the referral code
                     Intent shareIntent = new Intent(Intent.ACTION_SEND);

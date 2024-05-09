@@ -38,7 +38,7 @@
     <string name="admob_app_id">ca-app-pub-3940256099942544~3347511713</string>
 
     <!--    social media links-->
-    <string name="email">parbez964@gmail.com</string>
+    <string name="email">kaamkibaat001@gmail.com</string>
     <string name="emailSubject">All In One Affiliate App</string>
     <string name="emailBodyText">All In One Affiliate App</string>
     <string name="more_apps">Facebook</string> <!-- more apps Developer ID -->
@@ -60,7 +60,7 @@
     <string name="pound">\u00a3</string>
     <string name="euro">\u20ac</string>
 
-    <string name="referral_msg">Hey there! I just found an amazing app that offers great deals and discounts. Don\'t miss out on this awesome opportunity😊🎉 ,Sign up now using my referral code : </string>
+    <string name="referral_msg">Hey there! I just found an amazing app that offers great deals and discounts 🎉 ,Sign up now using my referral code : </string>
 
 
 </resources>

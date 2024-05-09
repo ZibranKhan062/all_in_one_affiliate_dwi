@@ -8,7 +8,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
+        android:background="@color/colorPrimaryDark"
         app:theme="@style/ToolbarTheme">
 
 
@@ -17,12 +17,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
+            android:fontFamily="@font/open_sans"
             android:inputType="none"
             android:maxLines="1"
             android:textColor="@android:color/white"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:visibility="visible" />
+            android:visibility="gone" />
 
 
     </androidx.appcompat.widget.Toolbar>
@@ -32,7 +33,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/toolbar"
-        android:background="@color/colorPrimaryDark">
+        android:background="@color/colorAccent">
 
 
         <LinearLayout
@@ -59,10 +60,10 @@
                 android:layout_marginLeft="5dp"
                 android:layout_marginRight="5dp"
                 android:fontFamily="@font/open_sans"
-                android:text="69"
                 android:textColor="@color/textView_totalReward_point_fragment"
                 android:textSize="16sp"
                 android:textStyle="bold" />
+
 
             <TextView
                 android:layout_width="wrap_content"
@@ -87,7 +88,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/open_sans"
-                android:text="1000"
+                android:text="100"
                 android:textColor="@android:color/white"
                 android:textSize="16sp" />
 
@@ -111,7 +112,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/open_sans"
-                android:text="1.00"
+                android:text="100"
                 android:textColor="@android:color/white"
                 android:textSize="16sp" />
 
@@ -127,7 +128,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/open_sans"
-                android:text="USD"
+                android:text="Rs"
                 android:textColor="@android:color/white"
                 android:textSize="16sp" />
 
@@ -153,7 +154,7 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rewardRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_below="@+id/rel22"
         android:layout_margin="10dp" />
 
@@ -166,5 +167,6 @@
         android:layout_alignParentBottom="true"
         android:layout_margin="16dp"
         android:src="@drawable/ic_baseline_history_24"
+        android:visibility="gone"
         app:backgroundTint="@android:color/white" />
 </RelativeLayout>
