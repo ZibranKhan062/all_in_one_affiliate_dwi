@@ -1,20 +1,20 @@
 {
-  "version": 1,
+  "version": 3,
   "artifactType": {
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "com.devapps.affiliate",
+  "applicationId": "com.allshopping.app",
   "variantName": "release",
   "elements": [
     {
       "type": "SINGLE",
       "filters": [],
-      "properties": [],
-      "versionCode": 8,
-      "versionName": "8.0.1",
-      "enabled": true,
+      "attributes": [],
+      "versionCode": 9,
+      "versionName": "1.8",
       "outputFile": "app-release.apk"
     }
-  ]
+  ],
+  "elementType": "File"
 }

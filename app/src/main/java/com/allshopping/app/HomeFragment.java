@@ -547,18 +547,20 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
 
 
         if (id == R.id.nav_referEarn) {
-            // Inflate the custom dialog layout
-            View dialogView = LayoutInflater.from(getActivity()).inflate(R.layout.layout_refer_earn_dialog, null);
-
-            // Create the custom dialog
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setView(dialogView);
-            AlertDialog dialog = builder.create();
-            // Set click listener for the OK button
-            Button okButton = dialogView.findViewById(R.id.okButton);
-            okButton.setOnClickListener(v -> dialog.dismiss());
-            // Show the custom dialog
-            dialog.show();
+            Intent intent = new Intent(mContext, ReferActivity.class);
+            startActivity(intent);
+//            // Inflate the custom dialog layout
+//            View dialogView = LayoutInflater.from(getActivity()).inflate(R.layout.layout_refer_earn_dialog, null);
+//
+//            // Create the custom dialog
+//            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+//            builder.setView(dialogView);
+//            AlertDialog dialog = builder.create();
+//            // Set click listener for the OK button
+//            Button okButton = dialogView.findViewById(R.id.okButton);
+//            okButton.setOnClickListener(v -> dialog.dismiss());
+//            // Show the custom dialog
+//            dialog.show();
 
             drawerLayout.closeDrawers();
         }

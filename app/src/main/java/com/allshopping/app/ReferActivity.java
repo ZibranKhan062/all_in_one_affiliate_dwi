@@ -99,7 +99,7 @@ public class ReferActivity extends AppCompatActivity {
                 // Check if the referral code is not empty
                 if (!referralCode.isEmpty()) {
                     // Create a share message
-                    String shareMessage = getResources().getString(R.string.referral_msg) + ""+referralCode+ " Get the App here : " + "https://play.google.com/store/apps/details?id=" + getPackageName();
+                    String shareMessage = getResources().getString(R.string.referral_msg) + "" + referralCode + " Get the App here : " + "https://play.google.com/store/apps/details?id=" + getPackageName();
 
                     // Create an Intent to share the referral code
                     Intent shareIntent = new Intent(Intent.ACTION_SEND);
@@ -170,8 +170,10 @@ public class ReferActivity extends AppCompatActivity {
                     Toast.makeText(ReferActivity.this, "User Logged out successfully !", Toast.LENGTH_LONG).show();
                     // Dismiss the dialog
                     customDialog.dismiss();
-                    Intent intent = new Intent(ReferActivity.this, MainActivity.class);
+                    Intent intent = new Intent(ReferActivity.this, SplashActivity.class);
                     startActivity(intent);
+                    finishAffinity();
+
                 }
             });
 
@@ -192,6 +194,7 @@ public class ReferActivity extends AppCompatActivity {
         finish();
     }
 
+
     private void pushReferralCode(String code) {
         String userUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userUid);
@@ -201,7 +204,6 @@ public class ReferActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-
                             Log.e("task", "done");
                         } else {
                             Log.e("task", "failed");
@@ -209,7 +211,6 @@ public class ReferActivity extends AppCompatActivity {
                     }
                 });
     }
-
 
     private void fetchReferralCode(String uid) {
         Config.showLoadingDialog(ReferActivity.this);
@@ -221,16 +222,18 @@ public class ReferActivity extends AppCompatActivity {
                 Config.hideLoadingDialog();
                 if (dataSnapshot.exists() && dataSnapshot.hasChild("referralCode")) {
                     String referralCode = dataSnapshot.child("referralCode").getValue(String.class);
-                    if (referralCode.equalsIgnoreCase("null") || referralCode == null || referralCode.isEmpty()) {
-                        pushReferralCode(getCode);
-                        textView_reference_code.setText(getCode);
+                    if (referralCode == null || referralCode.isEmpty()) {
+                        String newCode = createRandomCode(8);
+                        pushReferralCode(newCode);
+                        textView_reference_code.setText(newCode);
                     } else {
                         textView_reference_code.setText(referralCode);
-
                     }
-                    // Do whatever you want with the referral code
                     Log.e("ReferralCode", referralCode);
                 } else {
+                    String newCode = createRandomCode(8);
+                    pushReferralCode(newCode);
+                    textView_reference_code.setText(newCode);
                     Log.e("ReferralCode", "Referral code not found");
                 }
             }
@@ -241,5 +244,6 @@ public class ReferActivity extends AppCompatActivity {
             }
         });
     }
+
 
 }

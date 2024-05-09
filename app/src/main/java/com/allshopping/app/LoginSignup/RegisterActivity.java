@@ -12,10 +12,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.allshopping.app.R;
+import com.allshopping.app.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
@@ -25,7 +27,9 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.Objects;
@@ -50,11 +54,6 @@ public class RegisterActivity extends AppCompatActivity {
 
         firebaseAuth = FirebaseAuth.getInstance();
 
-//        if (firebaseAuth.getCurrentUser() != null) {
-//            Intent intent = new Intent(RegisterActivity.this, ReferActivity.class);
-//            startActivity(intent);
-//            finish();
-//        }
         setContentView(R.layout.activity_register);
         progressDialog = new ProgressDialog(RegisterActivity.this);
         uName = findViewById(R.id.u_name);
@@ -76,6 +75,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     }
 
+
     private void registerUser() {
         // Checking if email and passwords are empty
         if (TextUtils.isEmpty(uName.getText().toString().trim())) {
@@ -96,48 +96,148 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-
         progressDialog.setMessage("Registering Please Wait...");
         progressDialog.show();
-        firebaseAuth.createUserWithEmailAndPassword(userEmail.getText().toString().trim(), userPass.getText().toString().trim()).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                // Registration successful, get the UID of the newly registered user
-                String userUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-                // Create a new RegisterModel object to store user data
-                RegisterModel registerModel = new RegisterModel(uName.getText().toString().trim(),
-                        userEmail.getText().toString().trim(), userPhone.getText().toString().trim(),
-                        user_refer.getText().toString().trim());
-
-
-                // Get a reference to the "Users" node in the database
-                DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("Users");
-
-                // Check if the referral code is present in any other user's data and update the "referralCount" if needed
-//                updateReferralCountIfPresent(usersRef, userUid, user_refer.getText().toString().trim());
+        // Check the referral code
+        String referralCode = user_refer.getText().toString().trim();
+        if (!TextUtils.isEmpty(referralCode)) {
+            // Referral code is available, check if it is valid
+            checkReferralCode(referralCode);
+        } else {
+            // Referral code is not available, proceed with registration
+            proceedWithRegistration();
+        }
+    }
 
 
-                // Save the user data to the "Users" node with the user UID as the key
-                usersRef.child(userUid).setValue(registerModel).addOnCompleteListener(task1 -> {
+    private void checkReferralCode(String referralCode) {
+        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("Users");
+        Query query = usersRef.orderByChild("referralCode").equalTo(referralCode);
+
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    // Referral code is valid, proceed with registration
+                    proceedWithRegistration();
+                } else {
+                    // Referral code is invalid, show an error message and stop registration
                     progressDialog.dismiss();
+                    Toast.makeText(RegisterActivity.this, "Invalid referral code", Toast.LENGTH_SHORT).show();
+                }
+            }
 
-                    if (task1.isSuccessful()) {
-                        // Data saved successfully, proceed with other actions
-                        uName.setText("");
-                        userEmail.setText("");
-                        userPass.setText("");
-                        sendVerificationEmail();
-                    } else {
-                        Toast.makeText(RegisterActivity.this, Objects.requireNonNull(task1.getException()).getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-            } else {
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle any errors
                 progressDialog.dismiss();
-                Toast.makeText(RegisterActivity.this, Objects.requireNonNull(task.getException()).getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("ReferralCodeCheck", "Error checking referral code", databaseError.toException());
             }
         });
     }
 
+    private void proceedWithRegistration() {
+        firebaseAuth.createUserWithEmailAndPassword(userEmail.getText().toString().trim(), userPass.getText().toString().trim())
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        // Registration successful, get the UID of the newly registered user
+                        String userUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+                        // Create a new RegisterModel object to store user data
+                        RegisterModel registerModel = new RegisterModel(uName.getText().toString().trim(),
+                                userEmail.getText().toString().trim(), userPhone.getText().toString().trim(),
+                                ""); // Set referral code as empty for now
+
+                        // Get a reference to the "Users" node in the database
+                        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("Users");
+
+                        // Save the user data to the "Users" node with the user UID as the key
+                        usersRef.child(userUid).setValue(registerModel).addOnCompleteListener(task1 -> {
+                            progressDialog.dismiss();
+
+                            if (task1.isSuccessful()) {
+                                // Data saved successfully, update the referral count if a referral code is provided
+                                String referralCode = user_refer.getText().toString().trim();
+                                if (!TextUtils.isEmpty(referralCode)) {
+                                    updateReferralCount(referralCode, userUid);
+                                }
+                                // Proceed with other actions
+                                uName.setText("");
+                                userEmail.setText("");
+                                userPass.setText("");
+                                sendVerificationEmail();
+                            } else {
+                                Toast.makeText(RegisterActivity.this, Objects.requireNonNull(task1.getException()).getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    } else {
+                        progressDialog.dismiss();
+                        Toast.makeText(RegisterActivity.this, Objects.requireNonNull(task.getException()).getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void updateReferralCount(String referralCode, String referredUserUid) {
+        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("Users");
+        Query query = usersRef.orderByChild("referralCode").equalTo(referralCode);
+
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    // Referral code is valid, update the referral count
+                    for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                        String referringUserUid = userSnapshot.getKey();
+                        DatabaseReference referralsRef = usersRef.child(referringUserUid).child("Referrals");
+                        referralsRef.child(referredUserUid).setValue(true);
+                        incrementReferralCount(referringUserUid);
+                        break;
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle any errors
+                Log.e("ReferralCountUpdate", "Error updating referral count", databaseError.toException());
+            }
+        });
+    }
+
+    private void rewardReferringUser(String referringUserUid) {
+        // Implement your reward logic here
+        // For example, you can update the referring user's rewards points or balance in the database
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("Users").child(referringUserUid);
+
+        userRef.runTransaction(new Transaction.Handler() {
+            @NonNull
+            @Override
+            public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
+                User user = mutableData.getValue(User.class);
+                if (user == null) {
+                    return Transaction.success(mutableData);
+                }
+
+                // Update the user's rewards points or balance
+                int currentRewardsPoints = user.getRewardsPoints();
+                user.setRewardsPoints(currentRewardsPoints + 10); // Example: Add 10 rewards points
+
+                mutableData.setValue(user);
+
+                return Transaction.success(mutableData);
+            }
+
+            @Override
+            public void onComplete(@Nullable DatabaseError databaseError, boolean committed, @Nullable DataSnapshot dataSnapshot) {
+                if (databaseError != null) {
+                    Log.e("ReferralReward", "Error updating rewards points", databaseError.toException());
+                } else if (committed) {
+                    Log.d("ReferralReward", "Rewards points updated successfully");
+                }
+            }
+        });
+    }
 
     private void sendVerificationEmail() {
         FirebaseAuth auth = FirebaseAuth.getInstance();
@@ -150,52 +250,50 @@ public class RegisterActivity extends AppCompatActivity {
                     AlertDialog.Builder builder = new AlertDialog.Builder(RegisterActivity.this);
                     builder.setTitle("Email Sent").setMessage("A Verification email has been sent. Kindly check your email for the verification link")
                             .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // Proceed to ReferActivity
-                            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                            startActivity(intent);
-                            finish();
-                        }
-                    }).setCancelable(false).show();
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                                    startActivity(intent);
+                                    finish();
+                                }
+                            }).setCancelable(false).show();
                 } else {
                     Log.e("Email", "Failed to send.");
                 }
-
             }
         });
     }
 
-    private void updateReferralCountIfPresent(DatabaseReference usersRef, String userUid, String referralCode) {
-        Query query = usersRef.orderByChild("referralCode").equalTo(referralCode);
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
+    private void incrementReferralCount(String referringUserUid) {
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("Users").child(referringUserUid);
+
+        userRef.runTransaction(new Transaction.Handler() {
+            @NonNull
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
-                        String existingUserUid = userSnapshot.getKey();
-                        if (!existingUserUid.equals(userUid)) {
-                            // Check if the user already has the referralCount field
-                            if (userSnapshot.hasChild("referralCount")) {
-                                long currentReferralCount = userSnapshot.child("referralCount").getValue(Long.class);
-                                long updatedReferralCount = currentReferralCount + 1;
-                                userSnapshot.getRef().child("referralCount").setValue(updatedReferralCount);
-                            }
-//                            else {
-//                                // If referralCount field is not present, set it to 1
-//                                userSnapshot.getRef().child("referralCount").setValue(1);
-//                            }
-                        }
-                    }
-                } else {
-                    // No user with the given referral code found, handle this case if needed
+            public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
+                User user = mutableData.getValue(User.class);
+                if (user == null) {
+                    return Transaction.success(mutableData);
+                }
+
+                int currentReferralCount = user.getReferralCount();
+                user.setReferralCount(currentReferralCount + 1);
+                mutableData.setValue(user);
+
+                return Transaction.success(mutableData);
+            }
+
+            @Override
+            public void onComplete(@Nullable DatabaseError databaseError, boolean committed, @Nullable DataSnapshot dataSnapshot) {
+                if (databaseError != null) {
+                    Log.e("ReferralCountIncrement", "Error incrementing referral count", databaseError.toException());
+                } else if (committed) {
+                    Log.d("ReferralCountIncrement", "Referral count incremented successfully");
+                    // Optionally, you can reward the referring user here
+                    rewardReferringUser(referringUserUid);
                 }
             }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle database error if needed
-            }
         });
     }
+
 }

@@ -29,6 +29,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.Objects;
@@ -109,11 +110,16 @@ public class LoginActivity extends AppCompatActivity {
                         // Check if the user's email is verified
                         FirebaseUser user = firebaseAuth.getCurrentUser();
                         if (user != null && user.isEmailVerified()) {
-                            // Email is verified, proceed to the PaymentActivity
+                            // Email is verified, check the referral code
+                            String referralCode = user_refer.getText().toString().trim();
+
+
+                            // No referral code provided, proceed to the PaymentActivity
                             Intent intent = new Intent(LoginActivity.this, PaymentActivity.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(intent);
                             finish();
+
                         } else {
                             // Email is not verified, show a message and ask to verify
                             AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
@@ -169,6 +175,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
+
     private void checkPaymentStatus() {
         // Get the current user's UID
         String userUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -216,6 +223,10 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
+
+
+
+
 
 
 }
