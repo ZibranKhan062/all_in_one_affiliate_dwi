@@ -1,10 +1,11 @@
 package com.allshopping.app;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
@@ -12,6 +13,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.allshopping.app.LoginSignup.LoginActivity;
@@ -31,6 +33,7 @@ public class SplashActivity extends AppCompatActivity {
     public static final String FacebookPREFERENCES = "FacebookPrefs";
     public static final String isAdEnabledPREFERENCES = "isAdEnabledPrefs";
     SharedPreferences admobPreferences, facebookPreferences, isAdEnabledPreferences;
+    private AlertDialog updateDialog; // Declare a class-level variable for the dialog
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,15 +42,13 @@ public class SplashActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_splash);
+
         progressBar = findViewById(R.id.progressBar);
         admobPreferences = getSharedPreferences(AdMobPREFERENCES, Context.MODE_PRIVATE);
         facebookPreferences = getSharedPreferences(FacebookPREFERENCES, Context.MODE_PRIVATE);
         isAdEnabledPreferences = getSharedPreferences(isAdEnabledPREFERENCES, Context.MODE_PRIVATE);
         getAdsStatus();
-
-
-
-
+        checkAppVersion();
 
     }
 
@@ -140,10 +141,11 @@ public class SplashActivity extends AppCompatActivity {
                         editor.putString("fbInterID", fbInterID);
                         editor.apply();
 
+
 //                        progressBar.setVisibility(View.GONE);
-                        Intent mainIntent = new Intent(SplashActivity.this, LoginActivity.class);
-                        SplashActivity.this.startActivity(mainIntent);
-                        SplashActivity.this.finish();
+//                        Intent mainIntent = new Intent(SplashActivity.this, LoginActivity.class);
+//                        SplashActivity.this.startActivity(mainIntent);
+//                        SplashActivity.this.finish();
                     } else {
                         // Handle case where some data is null
                         Toast.makeText(SplashActivity.this, "Facebook data is incomplete!", Toast.LENGTH_SHORT).show();
@@ -161,5 +163,74 @@ public class SplashActivity extends AppCompatActivity {
             }
         });
     }
+
+
+    private void checkAppVersion() {
+        DatabaseReference appVersionRef = FirebaseDatabase.getInstance().getReference("app_version");
+        appVersionRef.keepSynced(true); // Force data to sync
+        appVersionRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                String latestVersion = dataSnapshot.child("version").getValue(String.class);
+                String updateMessage = dataSnapshot.child("message").getValue(String.class);
+                String updateTitle = dataSnapshot.child("title").getValue(String.class);
+                String currentVersion = BuildConfig.VERSION_NAME;
+
+                Log.e("latestVersion", latestVersion);
+                Log.e("currentVersion", currentVersion);
+
+                if (latestVersion != null && !latestVersion.equals(currentVersion)) {
+                    // Show update dialog with dynamic message and title
+                    showUpdateDialog(updateMessage, updateTitle);
+                } else {
+                    // Everything is okay, start LoginActivity
+                    Intent mainIntent = new Intent(SplashActivity.this, LoginActivity.class);
+                    startActivity(mainIntent);
+                    finish();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle database error
+                Toast.makeText(SplashActivity.this, "Error: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
+
+    private void showUpdateDialog(String message, String title) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(title)
+                .setMessage(message)
+                .setPositiveButton("Update", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Redirect to app store
+                        final String appPackageName = getPackageName();
+                        try {
+                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
+                        } catch (android.content.ActivityNotFoundException e) {
+                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
+                        }
+                        finish(); // Close the app
+                    }
+                })
+                .setCancelable(false); // Prevent dismissing the dialog
+
+        updateDialog = builder.create(); // Assign the dialog to the class-level variable
+        updateDialog.show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Dismiss the dialog if it is showing to avoid window leaks
+        if (updateDialog != null && updateDialog.isShowing()) {
+            updateDialog.dismiss();
+        }
+    }
+
 
 }

@@ -23,7 +23,7 @@
           }
         },
         {
-          "client_id": "2329287643-8v904j0kqpof13b6g89b136e9t10ltfi.apps.googleusercontent.com",
+          "client_id": "2329287643-vq1kmdog5h09s9odt8dko7f1mni918r9.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -52,15 +52,7 @@
       },
       "oauth_client": [
         {
-          "client_id": "2329287643-mjovps4f7flraf9gg002kpjpi0rts3o2.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.allshopping.app",
-            "certificate_hash": "99b7439ebf3650f22911639a051a93e8da9926e6"
-          }
-        },
-        {
-          "client_id": "2329287643-8v904j0kqpof13b6g89b136e9t10ltfi.apps.googleusercontent.com",
+          "client_id": "2329287643-vq1kmdog5h09s9odt8dko7f1mni918r9.apps.googleusercontent.com",
           "client_type": 3
         }
       ],

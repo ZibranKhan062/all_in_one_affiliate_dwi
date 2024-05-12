@@ -1,26 +1,21 @@
 package com.allshopping.app;
 
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.WebChromeClient;
+import android.webkit.WebView;
 import android.widget.Button;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
 
 import com.allshopping.app.LoginSignup.RegisterModel;
 import com.google.firebase.auth.FirebaseAuth;
@@ -41,18 +36,14 @@ import java.util.Locale;
 
 public class PaymentActivity extends AppCompatActivity implements PaymentResultWithDataListener {
 
-    private TextView textViewTitle;
-    private CardView cardViewBenefits;
-    private TextView textViewBenefit1;
-    private TextView textViewBenefit2;
-    private TextView textViewBenefit3;
+
     private Button buttonPay;
-    private TextView textViewTerms;
     private static final String TAG = "PaymentActivity";
 
     private SharedPreferences sharedPreferences;
     private ProgressDialog progressDialog;
     private ProgressDialog progressDialogs;
+    private String videoUrl; // The YouTube video URL
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,33 +53,7 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_payment);
 
-
-//        // Create a custom dialog with a white background
-//        progressDialogs = new ProgressDialog(this);
-//        progressDialogs.setContentView(R.layout.custom_dialogs);
-//        progressDialogs.getWindow().setBackgroundDrawable(new ColorDrawable(Color.WHITE));
-//        progressDialogs.setCancelable(false);
-//
-//// Set the dialog to be full screen
-//        Window window = progressDialogs.getWindow();
-//        window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-//
-//// Show the dialog
-//        progressDialogs.show();
-//
-//
-//        // Check if the user's payment is already done
-//        checkPaymentStatus();
-
-
-        // Initialize views
-        textViewTitle = findViewById(R.id.textViewTitle);
-        cardViewBenefits = findViewById(R.id.cardViewBenefits);
-//        textViewBenefit1 = findViewById(R.id.textViewBenefit1);
-//        textViewBenefit2 = findViewById(R.id.textViewBenefit2);
-//        textViewBenefit3 = findViewById(R.id.textViewBenefit3);
         buttonPay = findViewById(R.id.buttonPay);
-        textViewTerms = findViewById(R.id.textViewTerms);
 
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -136,6 +101,37 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
         buttonPay.setOnClickListener(v ->
 
                 startPayment());
+
+
+        WebView webView = findViewById(R.id.webView);
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.setWebChromeClient(new WebChromeClient());
+        webView.requestFocus();
+        webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
+
+
+        // Get a reference to the video node in the Firebase Realtime Database
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("video");
+
+// Add a ValueEventListener to the video reference
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Get the video ID
+                String videoId = dataSnapshot.getValue(String.class);
+                Log.e("Video ID", videoId);
+
+                // Load the YouTube video in the WebView
+                webView.loadData("<iframe width=\"100%\" height=\"100%\" src=\"https://www.youtube.com/embed/" + videoId + "?autoplay=1\" frameborder=\"0\" allowfullscreen></iframe>", "text/html", "utf-8");
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Handle errors here
+            }
+        });
+
+
     }
 
 

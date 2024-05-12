@@ -574,6 +574,16 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
             drawerLayout.closeDrawers();
 
         }
+        if (id == R.id.nav_logout_app) {
+
+            FirebaseAuth.getInstance().signOut();
+            Toast.makeText(mContext, "User Logged out successfully !", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(mContext, SplashActivity.class);
+            startActivity(intent);
+            finishAffinity(getActivity());
+            drawerLayout.closeDrawers();
+
+        }
 
         if (id == R.id.nav_shareApp) {
 

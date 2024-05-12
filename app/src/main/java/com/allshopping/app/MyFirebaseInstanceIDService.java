@@ -2,27 +2,27 @@ package com.allshopping.app;
 
 import android.util.Log;
 
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.FirebaseInstanceIdService;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingService;
+import com.google.firebase.messaging.RemoteMessage;
 
-public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
+public class MyFirebaseInstanceIDService  extends FirebaseMessagingService {
 
-    private static final String TAG = "mFirebaseIIDService";
+    private static final String TAG = "MyFirebaseMessagingServ";
     private static final String SUBSCRIBE_TO = "Appusers";
 
     @Override
-    public void onTokenRefresh() {
-        /*
-          This method is invoked whenever the token refreshes
-          OPTIONAL: If you want to send messages to this application instance
-          or manage this apps subscriptions on the server side,
-          you can send this token to your server.
-        */
-        String token = FirebaseInstanceId.getInstance().getToken();
+    public void onMessageReceived(RemoteMessage remoteMessage) {
+        // Handle incoming messages here
+        Log.d(TAG, "Message received: " + remoteMessage.getData());
+    }
+
+    @Override
+    public void onNewToken(String token) {
+        // Handle token refresh here
+        Log.d(TAG, "Refreshed token: " + token);
 
         // Once the token is generated, subscribe to topic with the userId
         FirebaseMessaging.getInstance().subscribeToTopic(SUBSCRIBE_TO);
-        Log.i(TAG, "onTokenRefresh completed with token: " + token);
     }
 }
