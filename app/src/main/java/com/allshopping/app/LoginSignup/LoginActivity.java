@@ -257,8 +257,8 @@ public class LoginActivity extends AppCompatActivity {
         View view = inflater.inflate(R.layout.dialog_layout, null);
         builder.setView(view);
 
-        final EditText mobileNumberInput = view.findViewById(R.id.mobile_number);
-        Button continueGoogleSignInButton = view.findViewById(R.id.continue_google_sign_in);
+        final TextInputEditText mobileNumberInput = view.findViewById(R.id.mobile_number_input);
+        SignInButton continueGoogleSignInButton = view.findViewById(R.id.google_sign_in_button);
 
         final AlertDialog dialog = builder.create();
 
@@ -274,6 +274,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
+
 
         dialog.show();
     }
@@ -322,7 +323,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void saveUserData(String userId, String name, String email, String mobileNumber) {
         GoogleUser user = new GoogleUser(name, email, mobileNumber, "");
-        mDatabase.child("Users").child(userId).setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
+        mDatabase.child("users").child(userId).setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {

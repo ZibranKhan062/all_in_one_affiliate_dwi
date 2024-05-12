@@ -1,22 +1,42 @@
-<!-- dialog_layout.xml -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
+    android:layout_height="match_parent"
     android:padding="16dp">
 
-    <EditText
-        android:id="@+id/mobile_number"
+    <TextView
+        android:layout_width="match_parent"
+        android:id="@+id/tvLabel"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/open_sans"
+        android:text="Enter Mobile Number" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/mobile_number_input_layout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter Mobile Number"
-        android:inputType="phone" />
+        android:layout_below="@+id/tvLabel"
+        android:layout_marginTop="12dp"
+        app:counterEnabled="true"
+        app:counterMaxLength="10">
 
-    <Button
-        android:id="@+id/continue_google_sign_in"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/mobile_number_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Mobile Number"
+            android:inputType="phone"
+            android:maxLength="10" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.gms.common.SignInButton
+        android:id="@+id/google_sign_in_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Continue to Login with Google" />
+        android:layout_below="@+id/mobile_number_input_layout"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp" />
 
-</LinearLayout>
+</RelativeLayout>
