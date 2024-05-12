@@ -1,16 +1,19 @@
 package com.allshopping.app;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -44,6 +47,7 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
     private ProgressDialog progressDialog;
     private ProgressDialog progressDialogs;
     private String videoUrl; // The YouTube video URL
+    private ImageView imageViewLogout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,7 +135,35 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
             }
         });
 
+        imageViewLogout = findViewById(R.id.imageViewLogout);
 
+        // Set up click listener for logout ImageView
+        imageViewLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Show confirmation dialog before logout
+                new AlertDialog.Builder(PaymentActivity.this)
+                        .setTitle("Logout")
+                        .setMessage("Are you sure you want to logout?")
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // If user clicks "Yes", proceed with logout
+                                FirebaseAuth.getInstance().signOut();
+                                // Finish all activities and exit the app
+                                finishAffinity();
+                            }
+                        })
+                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // If user clicks "No", dismiss the dialog
+                                dialog.dismiss();
+                            }
+                        })
+                        .show();
+            }
+        });
     }
 
 

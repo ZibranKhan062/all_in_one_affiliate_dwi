@@ -52,6 +52,30 @@
       },
       "oauth_client": [
         {
+          "client_id": "2329287643-qctaa704hkv281boos1i0s0u2jq7kr3h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.allshopping.app",
+            "certificate_hash": "823de97b43d41b5a314dc73273c0fc67987715e9"
+          }
+        },
+        {
+          "client_id": "2329287643-sh3cjqsjhsda1dm2bmrttgpnp490446a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.allshopping.app",
+            "certificate_hash": "13210d5599b69eb2e13760c9a50af4327fd084db"
+          }
+        },
+        {
+          "client_id": "2329287643-usa5anj8ihpkiuvi6tfhk63cbmnuk7sb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.allshopping.app",
+            "certificate_hash": "7ce6fbceef1050ab993b64a4847bcf6e946c4dd8"
+          }
+        },
+        {
           "client_id": "2329287643-vq1kmdog5h09s9odt8dko7f1mni918r9.apps.googleusercontent.com",
           "client_type": 3
         }

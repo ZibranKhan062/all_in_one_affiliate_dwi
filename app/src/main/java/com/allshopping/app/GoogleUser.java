@@ -3,16 +3,20 @@ package com.allshopping.app;
 public class GoogleUser {
     private String name;
     private String email;
-    private String mobileNumber;
+    private String phone;
+    private String referralCode;
+    private long referralCount;
 
     public GoogleUser() {
         // Default constructor required for Firebase
     }
 
-    public GoogleUser(String name, String email, String mobileNumber) {
+    public GoogleUser(String name, String email, String phone, String referralCode) {
         this.name = name;
         this.email = email;
-        this.mobileNumber = mobileNumber;
+        this.phone = phone;
+        this.referralCode = referralCode;
+        this.referralCount = 0;
     }
 
     public String getName() {
@@ -31,11 +35,28 @@ public class GoogleUser {
         this.email = email;
     }
 
-    public String getMobileNumber() {
-        return mobileNumber;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setMobileNumber(String mobileNumber) {
-        this.mobileNumber = mobileNumber;
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+
+    public String getReferralCode() {
+        return referralCode;
+    }
+
+    public void setReferralCode(String referralCode) {
+        this.referralCode = referralCode;
+    }
+
+    public long getReferralCount() {
+        return referralCount;
+    }
+
+    public void setReferralCount(long referralCount) {
+        this.referralCount = referralCount;
     }
 }

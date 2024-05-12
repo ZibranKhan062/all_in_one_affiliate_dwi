@@ -39,7 +39,7 @@
             android:name=".AllDeals"
             android:exported="true" />
         <activity android:name=".SearchActivity" />
-        <activity android:name=".TempActivity" />
+        <activity android:name=".TempActivity" android:exported="true"/>
         <activity android:name=".MyRewards" />
         <activity android:name=".LoginSignup.LoginActivity" />
         <activity android:name=".LoginSignup.RegisterActivity" />
