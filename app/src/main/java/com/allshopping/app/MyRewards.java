@@ -32,7 +32,8 @@ public class MyRewards extends AppCompatActivity {
     FloatingActionButton reward_history;
     Button claim_reward;
     private int totalRewardPoints = 0;
-
+    private int claimThreshold = 100; // Default value
+    private int rewardRatio = 1; // Default value
 
     private DatabaseReference mDatabase;
     private List<Reward> rewardList = new ArrayList<>();
@@ -51,7 +52,6 @@ public class MyRewards extends AppCompatActivity {
             getSupportActionBar().setTitle("Rewards List");  // Set the title of the toolbar
         }
 
-
         rewardRecyclerView = findViewById(R.id.rewardRecyclerView);
         reward_history = findViewById(R.id.reward_history);
         claim_reward = findViewById(R.id.claim_reward);
@@ -62,26 +62,37 @@ public class MyRewards extends AppCompatActivity {
         rewardRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         rewardRecyclerView.setAdapter(rewardAdapter);
 
-        loadRewardsFromFirebase();
+        // Load dynamic settings
+        loadRewardSettings();
+
         claim_reward.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (totalRewardPoints >= 100) {
+                if (totalRewardPoints >= claimThreshold) {
                     sendRewardClaimEmail();
                 }
             }
         });
-
     }
 
+    private void loadRewardSettings() {
+        mDatabase.child("RewardSettings").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    claimThreshold = dataSnapshot.child("claimThreshold").getValue(Integer.class);
+                    rewardRatio = dataSnapshot.child("rewardRatio").getValue(Integer.class);
+                    updateDynamicTextViews(); // Update the TextViews with the dynamic data
+                }
+                // Load rewards after settings
+                loadRewardsFromFirebase();
+            }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();  // Close this activity and return to the previous activity (or close the app if this is the bottom activity on the stack)
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Toast.makeText(MyRewards.this, "" + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void loadRewardsFromFirebase() {
@@ -110,7 +121,6 @@ public class MyRewards extends AppCompatActivity {
                 if (rewardList.isEmpty()) {
                     Snackbar.make(rewardRecyclerView, "No rewards found", Snackbar.LENGTH_LONG).show();
                 }
-
             }
 
             @Override
@@ -121,20 +131,26 @@ public class MyRewards extends AppCompatActivity {
         });
     }
 
-
-
     private void updateTotalRewardPointsTextView() {
         TextView textViewTotalRewardPoint = findViewById(R.id.textView_total_reward_point_fragment);
         textViewTotalRewardPoint.setText(String.valueOf(totalRewardPoints));
 
         Button claimRewardButton = findViewById(R.id.claim_reward);
-        if (totalRewardPoints < 100) {
+        if (totalRewardPoints < claimThreshold) {
             claimRewardButton.setEnabled(false);
             claimRewardButton.setBackgroundResource(R.drawable.rounded_disabled);
         } else {
             claimRewardButton.setEnabled(true);
             claimRewardButton.setBackgroundResource(R.drawable.rounded);
         }
+    }
+
+    private void updateDynamicTextViews() {
+        TextView pointsTextView = findViewById(R.id.points_text_view);
+        TextView rsTextView = findViewById(R.id.rs_text_view);
+
+        pointsTextView.setText(String.valueOf(claimThreshold));
+        rsTextView.setText(String.valueOf(claimThreshold * rewardRatio));
     }
 
     private void sendRewardClaimEmail() {
@@ -153,6 +169,12 @@ public class MyRewards extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();  // Close this activity and return to the previous activity (or close the app if this is the bottom activity on the stack)
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }
-
-
