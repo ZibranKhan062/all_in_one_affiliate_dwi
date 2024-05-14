@@ -41,7 +41,7 @@ public class Config extends Activity {
                 .setMessageColor(Color.BLACK)
                 .setDialogHeightPercentage(0.25f)
                 .setDialogBackground(Color.WHITE)
-                .setCancelable(false)
+                .setCancelable(true)
                 .setOnShowListener(dialogInterface -> {
                 })
                 .setOnDismissListener(dialogInterface -> {
@@ -54,7 +54,7 @@ public class Config extends Activity {
     }
 
 
-    public  LottieDialog loadingDialog(Context context) {
+    public LottieDialog loadingDialog(Context context) {
         loadingDialog = new LottieDialog(context)
                 .setAnimation(R.raw.loadinganimation)
                 .setAnimationRepeatCount(LottieDrawable.INFINITE)
@@ -85,9 +85,6 @@ public class Config extends Activity {
             loadingDialog.dismiss();
         }
     }
-
-
-
 
 
     public boolean isNetworkAvailable(Context context) {

@@ -64,19 +64,21 @@
 
         <item
             android:id="@+id/instagram"
-            android:icon="@drawable/ic_menu_instagram"
-            android:title="Instagram" />
+            android:icon="@drawable/whatsapp"
+            android:title="Whatsapp" />
 
         <item
             android:id="@+id/twitter"
-            android:icon="@drawable/twitter"
-            android:title="Twitter" />
+            android:icon="@drawable/telegram"
+            android:title="Telegram" />
         <item
             android:id="@+id/facebook"
+            android:visible="false"
             android:icon="@drawable/ic_menu_facebook"
             android:title="Facebook" />
         <item
             android:id="@+id/email_us"
+            android:visible="false"
             android:icon="@drawable/ic_menu_email"
             android:title="Email">
 

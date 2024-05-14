@@ -16,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.allshopping.app.models.Reward;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -83,22 +85,32 @@ public class MyRewards extends AppCompatActivity {
     }
 
     private void loadRewardsFromFirebase() {
-        mDatabase.child("Users").addListenerForSingleValueEvent(new ValueEventListener() {
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        mDatabase.child("Users").child(currentUserId).child("Referrals").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 totalRewardPoints = 0; // Reset the total reward points
-                for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
-                    String email = (String) userSnapshot.child("email").getValue();
-                    String name = (String) userSnapshot.child("name").getValue();
-                    for (DataSnapshot referralSnapshot : userSnapshot.child("Referrals").getChildren()) {
-                        int rewardPoints = referralSnapshot.child("rewardPoints").getValue(Integer.class);
+                rewardList.clear(); // Clear the existing reward list
+
+                for (DataSnapshot referralSnapshot : dataSnapshot.getChildren()) {
+                    String email = referralSnapshot.child("email").getValue(String.class);
+                    String name = referralSnapshot.child("name").getValue(String.class);
+                    Integer rewardPoints = referralSnapshot.child("rewardPoints").getValue(Integer.class);
+
+                    if (email != null && name != null && rewardPoints != null) {
                         totalRewardPoints += rewardPoints; // Increment the total reward points
                         Reward reward = new Reward(email, name, rewardPoints);
                         rewardList.add(reward);
                     }
                 }
+
                 rewardAdapter.notifyDataSetChanged();
                 updateTotalRewardPointsTextView(); // Update the TextView with the total reward points
+
+                if (rewardList.isEmpty()) {
+                    Snackbar.make(rewardRecyclerView, "No rewards found", Snackbar.LENGTH_LONG).show();
+                }
+
             }
 
             @Override
@@ -108,6 +120,8 @@ public class MyRewards extends AppCompatActivity {
             }
         });
     }
+
+
 
     private void updateTotalRewardPointsTextView() {
         TextView textViewTotalRewardPoint = findViewById(R.id.textView_total_reward_point_fragment);

@@ -1,7 +1,6 @@
 package com.allshopping.app;
 
 import static android.content.Context.MODE_PRIVATE;
-
 import static androidx.core.app.ActivityCompat.finishAffinity;
 
 import android.content.ActivityNotFoundException;
@@ -134,6 +133,12 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
     Config config;
     private LottieDialog loadingDialog;
 
+
+    private DatabaseReference mDatabase;
+
+    String whatsappNumber;
+    String telegramUsername;
+
     @Nullable
     @Override
 
@@ -176,6 +181,7 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
 //        snapHelper.attachToRecyclerView(couponRecyclerView);
 //        snapHelper.attachToRecyclerView(dealsRecyclerView);
 
+        mDatabase = FirebaseDatabase.getInstance().getReference();
 
         adContainer = (LinearLayout) view.findViewById(R.id.banner_container);
 //        AdmobView = view.findViewById(R.id.AdmobView);
@@ -334,7 +340,7 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
         loadDealsOffers();
 
         readCurrency();
-
+        fetchContactInfo();
 
         com.google.android.gms.ads.AdView adView = new com.google.android.gms.ads.AdView(mContext);
         adView.setAdSize(com.google.android.gms.ads.AdSize.BANNER);
@@ -495,8 +501,8 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
                 .build();
         if (mAdView.getAdSize() != null || mAdView.getAdUnitId() != null)
 //            mAdView.loadAd(adRequest);
-        // else Log state of adsize/adunit
-        adViewNew.addView(mAdView);
+            // else Log state of adsize/adunit
+            adViewNew.addView(mAdView);
 //        ((LinearLayout)findViewById(R.id.adView)).addView(mAdView);
     }
 
@@ -607,15 +613,14 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
         }
 
         if (id == R.id.instagram) {
-            Uri uri = Uri.parse("http://instagram.com/_u/" + getResources().getString(R.string.instagram));
-            Intent likeIng = new Intent(Intent.ACTION_VIEW, uri);
-            likeIng.setPackage("com.instagram.android");
+            Uri uri = Uri.parse("https://wa.me/" + whatsappNumber);
+            Intent likeWhatsApp = new Intent(Intent.ACTION_VIEW, uri);
+            likeWhatsApp.setPackage("com.whatsapp");
 
             try {
-                startActivity(likeIng);
+                startActivity(likeWhatsApp);
             } catch (ActivityNotFoundException e) {
-                startActivity(new Intent(Intent.ACTION_VIEW,
-                        Uri.parse("http://instagram.com/" + getResources().getString(R.string.instagram))));
+                startActivity(new Intent(Intent.ACTION_VIEW, uri));
             }
 
             drawerLayout.closeDrawers();
@@ -623,17 +628,16 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
 
         if (id == R.id.twitter) {
 
-            Intent intent = null;
+            Uri uri = Uri.parse("https://t.me/" + telegramUsername);
+            Intent likeTelegram = new Intent(Intent.ACTION_VIEW, uri);
+            likeTelegram.setPackage("org.telegram.messenger");
+
             try {
-                // get the Twitter app if possible
-                getActivity().getPackageManager().getPackageInfo("com.twitter.android", 0);
-                intent = new Intent(Intent.ACTION_VIEW, Uri.parse("twitter://user?user_id=" + getResources().getString(R.string.twitter)));
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            } catch (Exception e) {
-                // no Twitter app, revert to browser
-                intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://twitter.com/" + getResources().getString(R.string.twitter)));
+                startActivity(likeTelegram);
+            } catch (ActivityNotFoundException e) {
+                startActivity(new Intent(Intent.ACTION_VIEW, uri));
             }
-            startActivity(intent);
+
             drawerLayout.closeDrawers();
 
         }
@@ -777,7 +781,7 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
                     String isUserEnabled = dataSnapshot.getValue(String.class);
                     if (isUserEnabled != null && !isUserEnabled.equals("Yes")) {
                         // User account is disabled, show the alert dialog
-                        Log.e("User","disabled");
+                        Log.e("User", "disabled");
 
                         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
                         AlertDialog alertDialog = builder.create();
@@ -795,7 +799,6 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
                                 });
 
 
-
                         alertDialog.show();
                     }
                 }
@@ -805,6 +808,28 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 // Handle any errors
                 Log.e("HomeFragment", "Error checking user enabled status", databaseError.toException());
+            }
+        });
+    }
+
+    private void fetchContactInfo() {
+        mDatabase.keepSynced(true);
+        mDatabase.child("contact_info").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    whatsappNumber = dataSnapshot.child("whatsapp_number").getValue(String.class);
+                    telegramUsername = dataSnapshot.child("telegram_username").getValue(String.class);
+
+                    Log.e("whatsappNumber",""+whatsappNumber);
+                    Log.e("telegramUsername",""+telegramUsername);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle possible errors.
+                Log.e("HomeFragment", "Database error: " + databaseError.getMessage());
             }
         });
     }

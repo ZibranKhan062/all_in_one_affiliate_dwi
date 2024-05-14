@@ -52,13 +52,13 @@
                 android:id="@+id/label1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-
                 android:layout_below="@+id/img_refer"
-                android:layout_centerHorizontal="true"
                 android:layout_marginTop="10dp"
                 android:fontFamily="@font/open_sans"
-                android:gravity="center_horizontal"
-                android:text="Refer to your friend and Get a cash \n reward of $50"
+                android:layout_marginRight="10dp"
+                android:layout_marginLeft="10dp"
+                android:gravity="center"
+                android:text="Refer to your friend and get exciting cash and Rewards"
                 android:textColor="@android:color/black"
                 android:textSize="16sp"
                 android:textStyle="bold" />

@@ -197,7 +197,6 @@ public class RegisterActivity extends AppCompatActivity {
                         referredUserRef.child("name").setValue(uName.getText().toString().trim());
                         referredUserRef.child("email").setValue(userEmail.getText().toString().trim());
                         referredUserRef.child("rewardPoints").setValue(10); // Example: Add 10 reward points
-
                         break;
                     }
                 }
@@ -271,36 +270,5 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
-    private void incrementReferralCount(String referringUserUid) {
-        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("Users").child(referringUserUid);
-
-        userRef.runTransaction(new Transaction.Handler() {
-            @NonNull
-            @Override
-            public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
-                User user = mutableData.getValue(User.class);
-                if (user == null) {
-                    return Transaction.success(mutableData);
-                }
-
-                int currentReferralCount = user.getReferralCount();
-                user.setReferralCount(currentReferralCount + 1);
-                mutableData.setValue(user);
-
-                return Transaction.success(mutableData);
-            }
-
-            @Override
-            public void onComplete(@Nullable DatabaseError databaseError, boolean committed, @Nullable DataSnapshot dataSnapshot) {
-                if (databaseError != null) {
-                    Log.e("ReferralCountIncrement", "Error incrementing referral count", databaseError.toException());
-                } else if (committed) {
-                    Log.d("ReferralCountIncrement", "Referral count incremented successfully");
-                    // Optionally, you can reward the referring user here
-                    rewardReferringUser(referringUserUid);
-                }
-            }
-        });
-    }
 
 }

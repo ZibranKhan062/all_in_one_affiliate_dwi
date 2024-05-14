@@ -5,8 +5,8 @@
     android:padding="16dp">
 
     <TextView
-        android:layout_width="match_parent"
         android:id="@+id/tvLabel"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="@font/open_sans"
         android:text="Enter Mobile Number" />
@@ -31,12 +31,28 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/refer_code_input_layout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/mobile_number_input_layout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/refer_code_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Refer Code (Optional)" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
     <com.google.android.gms.common.SignInButton
         android:id="@+id/google_sign_in_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/mobile_number_input_layout"
+        android:layout_below="@+id/refer_code_input_layout"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="10dp" />
 
 </RelativeLayout>

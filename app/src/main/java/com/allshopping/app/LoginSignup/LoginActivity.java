@@ -71,6 +71,9 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
 
+    private String referralCode;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -258,7 +261,9 @@ public class LoginActivity extends AppCompatActivity {
         builder.setView(view);
 
         final TextInputEditText mobileNumberInput = view.findViewById(R.id.mobile_number_input);
+        final TextInputEditText referralCodeInput = view.findViewById(R.id.refer_code_input);
         SignInButton continueGoogleSignInButton = view.findViewById(R.id.google_sign_in_button);
+
 
         final AlertDialog dialog = builder.create();
 
@@ -266,6 +271,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mobileNumber = mobileNumberInput.getText().toString();
+                referralCode = referralCodeInput.getText().toString();
                 if (!mobileNumber.isEmpty()) {
                     dialog.dismiss();
                     signInWithGoogle();
@@ -275,14 +281,16 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-
         dialog.show();
+
+        //4awy3w1w
     }
 
     private void signInWithGoogle() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -310,7 +318,7 @@ public class LoginActivity extends AppCompatActivity {
                     String name = user.getDisplayName();
                     String email = user.getEmail();
 
-                    saveUserData(userId, name, email, mobileNumber);
+                    saveUserData(userId, name, email, mobileNumber, referralCode);
 
                     Toast.makeText(LoginActivity.this, "Google sign in success", Toast.LENGTH_SHORT).show();
                 } else {
@@ -321,21 +329,81 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void saveUserData(String userId, String name, String email, String mobileNumber) {
-        GoogleUser user = new GoogleUser(name, email, mobileNumber, "");
-        mDatabase.child("users").child(userId).setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
+    private void saveUserData(String userId, String name, String email, String mobileNumber, String referralCode) {
+        GoogleUser user = new GoogleUser(name, email, mobileNumber, referralCode);
+        mDatabase.child("Users").child(userId).setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
                     Toast.makeText(LoginActivity.this, "User data saved successfully", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(LoginActivity.this, PaymentActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                    finish();
+
+                    if (!TextUtils.isEmpty(referralCode)) {
+                        // Check if the referral code is valid
+                        mDatabase.child("Users").orderByChild("referralCode").equalTo(referralCode).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                if (dataSnapshot.exists()) {
+                                    // Referral code is valid, get the referring user's ID
+                                    String referringUserId = dataSnapshot.getChildren().iterator().next().getKey();
+
+                                    // Store the referred user's details under the referring user's "Referrals" node
+                                    mDatabase.child("Users").child(referringUserId).child("Referrals").child(userId).setValue(user);
+
+                                    // Reward the referring user
+                                    rewardReferringUser(referringUserId);
+                                } else {
+                                    // Referral code is invalid, show an error message
+                                    Toast.makeText(LoginActivity.this, "Invalid referral code", Toast.LENGTH_SHORT).show();
+                                }
+
+                                // Proceed to the PaymentActivity
+                                Intent intent = new Intent(LoginActivity.this, PaymentActivity.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                startActivity(intent);
+                                finish();
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+                                // Handle any errors
+                                Log.e("TAG", "Error checking referral code", databaseError.toException());
+
+                                // Proceed to the PaymentActivity
+                                Intent intent = new Intent(LoginActivity.this, PaymentActivity.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                startActivity(intent);
+                                finish();
+                            }
+                        });
+                    } else {
+                        // No referral code provided, proceed to the PaymentActivity
+                        Intent intent = new Intent(LoginActivity.this, PaymentActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        finish();
+                    }
                 } else {
                     Log.e("TAG", "Failed to save user data", task.getException());
                     Toast.makeText(LoginActivity.this, "Failed to save user data", Toast.LENGTH_SHORT).show();
                 }
+            }
+        });
+    }
+
+    private void rewardReferringUser(String userId) {
+        // Implement your reward logic here (e.g., update rewards points or balance)
+        // Example: Increment the referring user's rewards points by 100
+        mDatabase.child("Users").child(userId).child("rewardsPoints").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                int rewardsPoints = dataSnapshot.exists() ? dataSnapshot.getValue(Integer.class) : 0;
+                mDatabase.child("Users").child(userId).child("rewardsPoints").setValue(rewardsPoints + 100);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle any errors
+                Log.e("TAG", "Error rewarding referring user", databaseError.toException());
             }
         });
     }
