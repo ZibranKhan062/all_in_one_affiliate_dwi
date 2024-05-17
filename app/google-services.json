@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "2329287643-1goal53i6qcdbvqoluheaqor9am0lheu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.allshopping.admin",
+            "certificate_hash": "823de97b43d41b5a314dc73273c0fc67987715e9"
+          }
+        },
+        {
           "client_id": "2329287643-h5f932md881nqsdi13e88kb9vmuc1di7.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

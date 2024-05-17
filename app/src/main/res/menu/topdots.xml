@@ -34,6 +34,12 @@
             android:visible="true" />
 
         <item
+            android:id="@+id/nav_profile"
+            android:icon="@drawable/ic_person"
+            android:title="Profile"
+            android:visible="true" />
+
+        <item
             android:id="@+id/nav_logout_app"
             android:icon="@drawable/baseline_logout_24"
             android:title="Logout"

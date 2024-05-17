@@ -31,6 +31,8 @@
             android:layout_height="wrap_content"
             android:padding="16dp">
 
+
+
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardView"
                 android:layout_width="match_parent"
@@ -59,7 +61,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="24dp">
 
-                        <com.google.android.material.imageview.ShapeableImageView
+                        <ImageView
                             android:id="@+id/profileImageView"
                             android:layout_width="120dp"
                             android:layout_height="120dp"
@@ -67,8 +69,7 @@
                             android:background="?attr/selectableItemBackgroundBorderless"
                             android:clickable="true"
                             android:scaleType="centerCrop"
-                            android:src="@drawable/ic_person"
-                            app:shapeAppearanceOverlay="@style/CircularImageView" />
+                            android:src="@drawable/ic_person" />
 
                         <com.google.android.material.floatingactionbutton.FloatingActionButton
                             android:id="@+id/changePictureButton"
@@ -94,8 +95,7 @@
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/nameEditText"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Zibran khan" />
+                            android:layout_height="wrap_content" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- Email -->
@@ -111,11 +111,10 @@
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/emailEditText"
                             android:layout_width="match_parent"
+                            android:enabled="false"
                             android:layout_height="wrap_content"
-                            android:inputType="textEmailAddress"
-                            android:text="zibrangni@gmail.com" />
+                            android:inputType="textEmailAddress" />
                     </com.google.android.material.textfield.TextInputLayout>
-
                     <!-- Phone -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/phoneTextInputLayout"
@@ -129,9 +128,9 @@
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/phoneEditText"
                             android:layout_width="match_parent"
+                            android:enabled="false"
                             android:layout_height="wrap_content"
-                            android:inputType="phone"
-                            android:text="6000984822" />
+                            android:inputType="phone" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- Referral Code -->
@@ -140,6 +139,7 @@
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:visibility="gone"
                         android:layout_marginTop="16dp"
                         android:hint="Referral Code"
                         app:startIconDrawable="@drawable/ic_code">
@@ -158,6 +158,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
+                        android:visibility="gone"
                         android:hint="Referral Count"
                         app:startIconDrawable="@drawable/ic_people">
 
@@ -188,6 +189,12 @@
                         android:checked="true"
                         android:text="User Enabled"
                         android:textSize="16sp" />
+                    <ProgressBar
+                        android:id="@+id/progressBar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:visibility="gone" />
 
                     <!-- Save Button -->
                     <com.google.android.material.button.MaterialButton
@@ -199,6 +206,8 @@
                         android:text="Save"
                         android:textSize="16sp"
                         app:cornerRadius="8dp" />
+
+
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
         </androidx.constraintlayout.widget.ConstraintLayout>

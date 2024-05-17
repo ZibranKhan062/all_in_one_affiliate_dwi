@@ -1,115 +1,153 @@
 package com.allshopping.app;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.auth.api.signin.GoogleSignInResult;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.AuthResult;
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 public class TempActivity extends AppCompatActivity {
 
-    private static final int RC_SIGN_IN = 9001;
+    private static final int PICK_IMAGE_REQUEST = 1;
+
+    private ImageView profileImageView;
+    private EditText nameEditText;
+    private EditText emailEditText;
+    private EditText phoneEditText;
+    private EditText referralCodeEditText;
+    private EditText referralCountEditText;
+    private SwitchMaterial paymentCompleteSwitch;
+    private SwitchMaterial userEnabledSwitch;
+    private Button saveButton;
+
     private FirebaseAuth mAuth;
-    private GoogleApiClient mGoogleApiClient;
-    private static final String TAG = "GoogleSignInActivity";
+    private DatabaseReference mDatabase;
+    private StorageReference mStorage;
+
+    private Uri selectedImageUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_temp);
 
+        // Initialize Firebase components
         mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mStorage = FirebaseStorage.getInstance().getReference();
 
-        // Configure Google Sign In
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
+        // Initialize views
+        profileImageView = findViewById(R.id.profileImageView);
+        nameEditText = findViewById(R.id.nameEditText);
+        emailEditText = findViewById(R.id.emailEditText);
+        phoneEditText = findViewById(R.id.phoneEditText);
+        referralCodeEditText = findViewById(R.id.referralCodeEditText);
+        referralCountEditText = findViewById(R.id.referralCountEditText);
+        paymentCompleteSwitch = findViewById(R.id.paymentCompleteSwitch);
+        userEnabledSwitch = findViewById(R.id.userEnabledSwitch);
+        saveButton = findViewById(R.id.saveButton);
 
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this, new GoogleApiClient.OnConnectionFailedListener() {
-                    @Override
-                    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-                        Log.e(TAG, "Google Play Services connection failed");
-                    }
-                })
-                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                .build();
-
-        findViewById(R.id.sign_in_button).setOnClickListener(new View.OnClickListener() {
+        // Set click listener for profile image
+        profileImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                signIn();
+                openImagePicker();
+            }
+        });
+
+        // Set click listener for save button
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                saveUserData();
             }
         });
     }
 
-    private void signIn() {
-        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
-        startActivityForResult(signInIntent, RC_SIGN_IN);
+    public void onChangePictureClicked(View view) {
+        openImagePicker();
+    }
+
+    private void openImagePicker() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
-        if (requestCode == RC_SIGN_IN) {
-            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            if (result.isSuccess()) {
-                GoogleSignInAccount account = result.getSignInAccount();
-                firebaseAuthWithGoogle(account);
-            } else {
-                Log.e(TAG, "Google Sign In failed");
-                Toast.makeText(this, "Google Sign In failed", Toast.LENGTH_SHORT).show();
-            }
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            selectedImageUri = data.getData();
+            Glide.with(this).load(selectedImageUri).into(profileImageView);
         }
     }
 
-    private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
-        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithCredential:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            // Update UI
-                        } else {
-                            Log.e(TAG, "code: " + task.getException());
-                            // If sign in fails, display a message to the user.
-                            Log.e(TAG, "signInWithCredential:failure", task.getException());
-                            Toast.makeText(TempActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                            if (task.getException() instanceof FirebaseAuthException) {
-                                FirebaseAuthException e = (FirebaseAuthException) task.getException();
-                                Log.e(TAG, "Error code: " + e.getErrorCode());
-                                Log.e(TAG, "Error message: " + e.getMessage());
-                            }
-                            // ...
-                        }
-                    }
-                });
-    }
+    private void saveUserData() {
+        String userId = mAuth.getCurrentUser().getUid();
+        String name = nameEditText.getText().toString().trim();
+        String email = emailEditText.getText().toString().trim();
+        String phone = phoneEditText.getText().toString().trim();
+        String referralCode = referralCodeEditText.getText().toString().trim();
+        String referralCount = referralCountEditText.getText().toString().trim();
+        boolean paymentComplete = paymentCompleteSwitch.isChecked();
+        boolean userEnabled = userEnabledSwitch.isChecked();
 
+        // Save user data to Realtime Database
+        mDatabase.child("users").child(userId).child("name").setValue(name);
+        mDatabase.child("users").child(userId).child("email").setValue(email);
+        mDatabase.child("users").child(userId).child("phone").setValue(phone);
+        mDatabase.child("users").child(userId).child("referralCode").setValue(referralCode);
+        mDatabase.child("users").child(userId).child("referralCount").setValue(referralCount);
+        mDatabase.child("users").child(userId).child("paymentComplete").setValue(paymentComplete);
+        mDatabase.child("users").child(userId).child("userEnabled").setValue(userEnabled);
+
+        // Upload user image to Firebase Storage
+        if (selectedImageUri != null) {
+            StorageReference imageRef = mStorage.child("userImages").child(userId + ".jpg");
+            imageRef.putFile(selectedImageUri)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            // Get the download URL of the uploaded image
+                            imageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    String imageUrl = uri.toString();
+                                    // Save the image URL to Realtime Database
+                                    mDatabase.child("users").child(userId).child("userImage").setValue(imageUrl);
+                                    Toast.makeText(TempActivity.this, "User data saved successfully", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(TempActivity.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        } else {
+            Toast.makeText(TempActivity.this, "User data saved successfully", Toast.LENGTH_SHORT).show();
+        }
+    }
 }
