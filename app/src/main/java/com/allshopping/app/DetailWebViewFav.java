@@ -29,13 +29,11 @@ import androidx.appcompat.widget.Toolbar;
 import com.allshopping.app.Favorite.BookMarksActivity;
 import com.allshopping.app.Favorite.DatabaseHelper;
 import com.allshopping.app.Favorite.NewsModel;
-import com.wang.avi.AVLoadingIndicatorView;
 
 public class DetailWebViewFav extends AppCompatActivity {
     WebView webView;
     Intent intent;
 
-    AVLoadingIndicatorView avi;
     ProgressBar progressbar;
     TextView toolbarTextView;
     Intent web_name;

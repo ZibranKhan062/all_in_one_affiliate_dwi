@@ -178,6 +178,7 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         String razorpayKey = sharedPreferences.getString("razorpayKey", "");
         String amount = sharedPreferences.getString("amount", "");
+        Log.e("AMount", "" + amount);
         String currency = sharedPreferences.getString("currency", "");
 
         // Retrieve the user's data

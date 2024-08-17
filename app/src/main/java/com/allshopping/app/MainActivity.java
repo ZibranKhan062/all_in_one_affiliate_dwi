@@ -41,27 +41,19 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         Fragment fragment = null;
 
-        switch (item.getItemId()) {
-            case R.id.navigation_home:
-                fragment = new HomeFragment();
-                break;
 
-            case R.id.navigation_dashboard:
-                fragment = new TrendingFragment();
-                break;
+        int itemId = item.getItemId();
 
-            case R.id.navigation_coupon:
-                fragment = new CouponFragment();
-                break;
-
-            case R.id.navigation_profile:
-                fragment = new ProfileFragment();
-                break;
-            default:
-                /*
-                default
-                 */
+        if (itemId == R.id.navigation_home) {
+            fragment = new HomeFragment();
+        } else if (itemId == R.id.navigation_dashboard) {
+            fragment = new TrendingFragment();
+        } else if (itemId == R.id.navigation_coupon) {
+            fragment = new CouponFragment();
+        } else if (itemId == R.id.navigation_profile) {
+            fragment = new ProfileFragment();
         }
+
 
         return loadFragment(fragment);
     }
@@ -78,8 +70,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         }
         return false;
     }
-
-
 
 
     @Override
@@ -113,4 +103,5 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             e.printStackTrace();
         }
     }
+
 }

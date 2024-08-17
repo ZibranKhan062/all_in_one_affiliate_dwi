@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -174,7 +176,7 @@ public class SplashActivity extends AppCompatActivity {
                 String latestVersion = dataSnapshot.child("version").getValue(String.class);
                 String updateMessage = dataSnapshot.child("message").getValue(String.class);
                 String updateTitle = dataSnapshot.child("title").getValue(String.class);
-                String currentVersion = BuildConfig.VERSION_NAME;
+                String currentVersion = getAppVersion();
 
                 Log.e("latestVersion", latestVersion);
                 Log.e("currentVersion", currentVersion);
@@ -184,7 +186,7 @@ public class SplashActivity extends AppCompatActivity {
                     showUpdateDialog(updateMessage, updateTitle);
                 } else {
                     // Everything is okay, start LoginActivity
-                    Intent mainIntent = new Intent(SplashActivity.this, LoginActivity.class);
+                    Intent mainIntent = new Intent(SplashActivity.this, MainActivity.class);
                     startActivity(mainIntent);
                     finish();
                 }
@@ -232,5 +234,14 @@ public class SplashActivity extends AppCompatActivity {
         }
     }
 
+    private String getAppVersion() {
+        try {
+            PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            return packageInfo.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
 }

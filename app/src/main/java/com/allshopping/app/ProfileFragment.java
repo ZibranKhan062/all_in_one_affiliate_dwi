@@ -1,9 +1,11 @@
 package com.allshopping.app;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -30,6 +32,7 @@ import com.facebook.ads.AdSize;
 import com.facebook.ads.AdView;
 import com.facebook.ads.AudienceNetworkAds;
 import com.google.android.gms.ads.AdRequest;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -93,6 +96,20 @@ public class ProfileFragment extends Fragment {
             Toast.makeText(mContext, "No Internet Connection Available", Toast.LENGTH_LONG).show();
 
         }
+
+        ExtendedFloatingActionButton extendedFab = view.findViewById(R.id.extended_fab);
+        extendedFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String email = getString(R.string.email);
+                Intent intent = new Intent(Intent.ACTION_SENDTO);
+                intent.setData(Uri.parse("mailto:" + email));
+                intent.putExtra(Intent.EXTRA_SUBJECT, "Promote Your App");
+                startActivity(Intent.createChooser(intent, "Send Email"));
+            }
+        });
+
+
 
 
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {

@@ -352,7 +352,7 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
 //        adView.loadAd(adRequest);
 
 
-        checkUserEnabledStatus();
+//        checkUserEnabledStatus();
         return view;
     }
 
@@ -394,37 +394,57 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
         databaseReference = FirebaseDatabase.getInstance().getReference("HomeItems");
         databaseReference.keepSynced(true);
 
-
         options = new FirebaseRecyclerOptions.Builder<TempModel>()
-                .setQuery(FirebaseDatabase.getInstance().getReference("HomeItems"), TempModel.class)
+                .setQuery(databaseReference, TempModel.class)
                 .build();
 
         recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
-        tempAdapter = new TempAdapter(options, mContext);
+
+        if (tempAdapter == null) {
+            tempAdapter = new TempAdapter(options, mContext);
+            recyclerView.setAdapter(tempAdapter);
+        } else {
+            tempAdapter.updateOptions(options);
+        }
+
         tempAdapter.startListening();
-        recyclerView.setAdapter(tempAdapter);
     }
+
+
 
 
     public void loadDealsOffers() {
-
         DatabaseReference dealsReference = FirebaseDatabase.getInstance().getReference("Deals");
         dealsReference.keepSynced(true);
 
-
         dealsOptions = new FirebaseRecyclerOptions.Builder<DealsModel>()
-                .setQuery(FirebaseDatabase.getInstance().getReference("Deals"), DealsModel.class)
+                .setQuery(dealsReference, DealsModel.class)
                 .build();
 
         mLayoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false);
-        mLayoutManager.setReverseLayout(true);
-        mLayoutManager.setStackFromEnd(true);
-
         dealsRecyclerView.setLayoutManager(mLayoutManager);
-        dealsAdapter = new DealsAdapter(dealsOptions, mContext);
+
+        // Initialize the adapter and set it to the RecyclerView
+        if (dealsAdapter == null) {
+            dealsAdapter = new DealsAdapter(dealsOptions, mContext);
+            dealsRecyclerView.setAdapter(dealsAdapter);
+        } else {
+            dealsAdapter.updateOptions(dealsOptions);
+        }
+
         dealsAdapter.startListening();
-        dealsRecyclerView.setAdapter(dealsAdapter);
+
+        // Add this line to notify the adapter of data changes
+        dealsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+                dealsRecyclerView.post(() -> dealsAdapter.notifyDataSetChanged());
+            }
+        });
     }
+
+
 
     @Override
     public void onDestroy() {
@@ -509,17 +529,17 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
     @Override
     public void onStart() {
         super.onStart();
-        tempAdapter.startListening();
-        couponChildAdapter.startListening();
-        dealsAdapter.startListening();
+        if (tempAdapter != null) tempAdapter.startListening();
+        if (couponChildAdapter != null) couponChildAdapter.startListening();
+        if (dealsAdapter != null) dealsAdapter.startListening();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        tempAdapter.stopListening();
-        couponChildAdapter.stopListening();
-        dealsAdapter.stopListening();
+        if (tempAdapter != null) tempAdapter.stopListening();
+        if (couponChildAdapter != null) couponChildAdapter.stopListening();
+        if (dealsAdapter != null) dealsAdapter.stopListening();
     }
 
 
@@ -600,14 +620,35 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
 
         }
         if (id == R.id.nav_logout_app) {
+            // Create an AlertDialog to show the confirmation dialog
+            AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+            builder.setTitle("Logout");
+            builder.setMessage("Are you sure you want to logout?");
+            builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    // User confirmed logout
+                    FirebaseAuth.getInstance().signOut();
+                    Toast.makeText(mContext, "User Logged out successfully!", Toast.LENGTH_LONG).show();
+                    Intent intent = new Intent(mContext, SplashActivity.class);
+                    startActivity(intent);
+                    finishAffinity(getActivity());
+                    drawerLayout.closeDrawers();
+                }
+            });
+            builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    // User canceled logout
+                    dialog.dismiss();
+                }
+            });
 
-            FirebaseAuth.getInstance().signOut();
-            Toast.makeText(mContext, "User Logged out successfully !", Toast.LENGTH_LONG).show();
-            Intent intent = new Intent(mContext, SplashActivity.class);
-            startActivity(intent);
-            finishAffinity(getActivity());
-            drawerLayout.closeDrawers();
+            // Show the confirmation dialog
+            AlertDialog dialog = builder.create();
+            dialog.show();
 
+            return true;
         }
 
         if (id == R.id.nav_shareApp) {
@@ -786,50 +827,50 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
         });
     }
 
-    private void checkUserEnabledStatus() {
-        // Get the current user's UID
-        String userUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-        // Get a reference to the user's data in the database
-        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("Users").child(userUid);
-
-        userRef.child("isUserEnabled").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    String isUserEnabled = dataSnapshot.getValue(String.class);
-                    if (isUserEnabled != null && !isUserEnabled.equals("Yes")) {
-                        // User account is disabled, show the alert dialog
-                        Log.e("User", "disabled");
-
-                        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-                        AlertDialog alertDialog = builder.create();
-                        builder.setTitle("Account Disabled")
-                                .setMessage("Your account is currently disabled.")
-                                .setCancelable(false)
-                                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-
-                                        alertDialog.dismiss();
-                                        finishAffinity(getActivity());
-                                        System.exit(0);
-                                    }
-                                });
-
-
-                        alertDialog.show();
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle any errors
-                Log.e("HomeFragment", "Error checking user enabled status", databaseError.toException());
-            }
-        });
-    }
+//    private void checkUserEnabledStatus() {
+//        // Get the current user's UID
+//        String userUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+//
+//        // Get a reference to the user's data in the database
+//        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("Users").child(userUid);
+//
+//        userRef.child("isUserEnabled").addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                if (dataSnapshot.exists()) {
+//                    String isUserEnabled = dataSnapshot.getValue(String.class);
+//                    if (isUserEnabled != null && !isUserEnabled.equals("Yes")) {
+//                        // User account is disabled, show the alert dialog
+//                        Log.e("User", "disabled");
+//
+//                        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+//                        AlertDialog alertDialog = builder.create();
+//                        builder.setTitle("Account Disabled")
+//                                .setMessage("Your account is currently disabled.")
+//                                .setCancelable(false)
+//                                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//                                    @Override
+//                                    public void onClick(DialogInterface dialog, int which) {
+//
+//                                        alertDialog.dismiss();
+//                                        finishAffinity(getActivity());
+//                                        System.exit(0);
+//                                    }
+//                                });
+//
+//
+//                        alertDialog.show();
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//                // Handle any errors
+//                Log.e("HomeFragment", "Error checking user enabled status", databaseError.toException());
+//            }
+//        });
+//    }
 
     private void fetchContactInfo() {
         mDatabase.keepSynced(true);
@@ -852,5 +893,7 @@ public class HomeFragment extends Fragment implements NavigationView.OnNavigatio
             }
         });
     }
+
+
 
 }

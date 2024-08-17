@@ -27,7 +27,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.allshopping.app.R;
-import com.wang.avi.AVLoadingIndicatorView;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -39,7 +38,6 @@ public class AffiliateActivity extends AppCompatActivity {
     WebView webView;
     Intent intent;
 
-    AVLoadingIndicatorView avi;
     ProgressBar progressBar;
     String receiveAffiliateLinks;
     TextView toolbarTextView;

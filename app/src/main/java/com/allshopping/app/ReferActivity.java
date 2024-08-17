@@ -45,7 +45,8 @@ public class ReferActivity extends AppCompatActivity {
     private DatabaseReference mDatabaseReference;
     String getCode;
     Button btn_refer;
-
+    private DatabaseReference mRewardSettingsReference;
+    private TextView label1TextView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -115,6 +116,14 @@ public class ReferActivity extends AppCompatActivity {
             }
         });
 
+
+        label1TextView = findViewById(R.id.label1);
+
+        // Initialize the reward settings reference
+        mRewardSettingsReference = FirebaseDatabase.getInstance().getReference("RewardSettings");
+
+        // Fetch the label text from Firebase
+        fetchLabelText();
     }
 
     public String createRandomCode(int codeLength) {
@@ -244,6 +253,24 @@ public class ReferActivity extends AppCompatActivity {
             }
         });
     }
+    private void fetchLabelText() {
+        mRewardSettingsReference.child("label1Text").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    String labelText = dataSnapshot.getValue(String.class);
+                    label1TextView.setText(labelText);
+                } else {
+                    // Set a default text if the label text is not found in the database
+                    label1TextView.setText("Refer to your friend and get exciting cash and Rewards");
+                }
+            }
 
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e("DatabaseError", "Error reading label text: " + databaseError.getMessage());
+            }
+        });
+    }
 
 }

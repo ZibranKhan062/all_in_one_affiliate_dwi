@@ -129,8 +129,13 @@ public class ProfileActivity extends AppCompatActivity {
                     userEnabledSwitch.setChecked(isUserEnabled != null && isUserEnabled.equals("Yes"));
 
                     if (imageUrl != null) {
-                        Glide.with(ProfileActivity.this).load(imageUrl).into(profileImageView);
+                        Glide.with(ProfileActivity.this)
+                                .load(imageUrl)
+                                .timeout(30000) // Set the timeout to 30 seconds (adjust as needed)
+                                .error(R.drawable.ic_person)
+                                .into(profileImageView);
                     }
+
                 }
             }
 
@@ -215,7 +220,8 @@ public class ProfileActivity extends AppCompatActivity {
                                             Toast.makeText(ProfileActivity.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
                                         }
                                     });
-                        } else {
+                        }
+                        else {
                             // Hide progress
                             progressBar.setVisibility(View.GONE);
                             Toast.makeText(ProfileActivity.this, "User data saved successfully", Toast.LENGTH_SHORT).show();

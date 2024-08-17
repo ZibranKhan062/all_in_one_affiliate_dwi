@@ -20,7 +20,6 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.allshopping.app.R;
-import com.wang.avi.AVLoadingIndicatorView;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -31,7 +30,6 @@ public class SliderItemDestination extends AppCompatActivity {
     WebView webView;
     Intent intent;
 
-    AVLoadingIndicatorView avi;
     ProgressBar progressBar;
     String sliderlink;
 
